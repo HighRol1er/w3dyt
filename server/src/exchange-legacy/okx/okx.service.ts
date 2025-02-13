@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../../common/constants/api.constants';
 
 export interface OKXTicker {
   instId: string;          // 상품 ID (예: BTC-USDT)
@@ -27,7 +28,7 @@ export interface OKXResponse<T> {
 
 @Injectable()
 export class OKXService {
-  private readonly OKX_API_URL = 'https://www.okx.com/api/v5';
+  private readonly OKX_API_URL = API_ENDPOINTS.OKX;
 
   async getAllMarketPrices(): Promise<OKXResponse<OKXTicker[]>> {
     try {

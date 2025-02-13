@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-
+import { API_ENDPOINTS } from '../../common/constants/api.constants';
 export interface BinancePrice {
   symbol: string;
   price: string;
@@ -33,7 +33,7 @@ export interface BinanceTicker {
 
 @Injectable()
 export class BinanceService {
-  private readonly BINANCE_API_URL = 'https://api.binance.com/api/v3';
+  private readonly BINANCE_API_URL = API_ENDPOINTS.BINANCE;
 
   async getAllMarketPrices(): Promise<BinanceTicker[]> {
     try {

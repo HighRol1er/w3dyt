@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../../common/constants/api.constants';
 
 export interface BybitTicker {
   symbol: string;
@@ -10,7 +11,7 @@ export interface BybitTicker {
   volume24h: string;
   turnover24h: string;
   price24hPcnt: string;
-  usdIndexPrice: string;
+  usdIndexPrice: string
 }
 
 export interface BybitResponse<T> {
@@ -25,7 +26,7 @@ export interface BybitResponse<T> {
 
 @Injectable()
 export class BybitService {
-  private readonly BYBIT_API_URL = 'https://api.bybit.com/v5';
+  private readonly BYBIT_API_URL = API_ENDPOINTS.BYBIT;
 
   async getAllMarketPrices(): Promise<BybitResponse<BybitTicker>> {
     try {
@@ -39,7 +40,7 @@ export class BybitService {
       );
 
       // USDT 마켓만 필터링
-      response.data.result.list = response.data.result.list.filter(ticker => 
+      response.data.result.list = response.data.result.list.filter(ticker =>
         ticker.symbol.endsWith('USDT')
       );
 

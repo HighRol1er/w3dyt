@@ -1,12 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
-import { CoinbaseService, CoinbaseProduct } from './coinbase.service';
+import { CoinbaseService, CoinbaseTicker } from './coinbase.service';
 
 @Controller('coinbase')
 export class CoinbaseController {
   constructor(private readonly coinbaseService: CoinbaseService) {}
 
   @Get('market/all')
-  getAllProducts(): Promise<CoinbaseProduct[]> {
+  getAllProducts(): Promise<CoinbaseTicker[]> {
     return this.coinbaseService.getAllProducts();
   }
 }

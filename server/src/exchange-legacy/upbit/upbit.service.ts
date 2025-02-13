@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { API_ENDPOINTS } from 'src/common/constants/api.constants';
+
 
 export interface Market {
   market: string;
@@ -7,7 +9,7 @@ export interface Market {
   english_name: string;
 }
 
-export interface MarketPrice {
+export interface UpbitTicker {
   market: string;
   trade_date: string;
   trade_time: string;
@@ -36,7 +38,7 @@ export interface MarketPrice {
 
 @Injectable()
 export class UpbitService {
-  private readonly UPBIT_API_URL = 'https://api.upbit.com/v1';
+  private readonly UPBIT_API_URL = API_ENDPOINTS.UPBIT;
 
   async getMarkets(): Promise<Market[]> {
     try {
@@ -47,7 +49,7 @@ export class UpbitService {
     }
   }
 
-  async getAllMarketPrices(): Promise<MarketPrice[]> {
+  async getAllMarketPrices(): Promise<UpbitTicker[]> {
     try {
       // 1. 먼저 모든 마켓 목록을 가져옵니다
       const markets = await this.getMarkets();
@@ -58,7 +60,7 @@ export class UpbitService {
         .map(market => market.market);
       
       // 3. 한 번의 요청으로 모든 마켓의 가격 정보를 가져옵니다
-      const response = await axios.get<MarketPrice[]>(`${this.UPBIT_API_URL}/ticker`, {
+      const response = await axios.get<UpbitTicker[]>(`${this.UPBIT_API_URL}/ticker`, {
         params: {
           markets: krwMarkets.join(','),
         },

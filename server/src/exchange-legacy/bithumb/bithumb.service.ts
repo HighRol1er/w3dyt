@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../../common/constants/api.constants';
 
 export interface BithumbTicker {
   opening_price: string;
@@ -23,7 +24,7 @@ export interface BithumbResponse<T> {
 
 @Injectable()
 export class BithumbService {
-  private readonly BITHUMB_API_URL = 'https://api.bithumb.com/public';
+  private readonly BITHUMB_API_URL = API_ENDPOINTS.BITHUMB;
 
   async getAllMarketPrices(): Promise<BithumbResponse<{ [key: string]: BithumbTicker }>> {
     try {

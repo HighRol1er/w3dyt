@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import axios, { AxiosRequestConfig } from 'axios';
+import { API_ENDPOINTS } from '../../common/constants/api.constants';
 
-export interface CoinbaseProduct {
+export interface CoinbaseTicker {
   product_id: string;
   base_currency: string;
   quote_currency: string;
@@ -21,7 +22,7 @@ export interface CoinbaseProduct {
 
 @Injectable()
 export class CoinbaseService {
-  private readonly COINBASE_API_URL = 'https://api.exchange.coinbase.com';
+  private readonly COINBASE_API_URL = API_ENDPOINTS.COINBASE;
 
   private readonly config: AxiosRequestConfig = {
     headers: {
@@ -29,9 +30,9 @@ export class CoinbaseService {
     },
   };
 
-  async getAllProducts(): Promise<CoinbaseProduct[]> {
+  async getAllProducts(): Promise<CoinbaseTicker[]> {
     try {
-      const response = await axios.get<CoinbaseProduct[]>(
+      const response = await axios.get<CoinbaseTicker[]>(
         `${this.COINBASE_API_URL}/products`,
         this.config,
       );
