@@ -1,10 +1,10 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { WebSocket } from 'ws';
 import { WEBSOCKET_ENDPOINTS } from 'src/common/constants';
-import { upbitMarketData } from 'scripts/market/upbit-market-data';
+import { bithumbMarketData } from 'scripts/market/bithumb-market-data';
 
 @Injectable()
-export class UpbitWebsocketService implements OnModuleInit {
+export class BithumbWebsocketService implements OnModuleInit {
   private ws: WebSocket;
   private clients: Set<WebSocket> = new Set();
 
@@ -13,26 +13,23 @@ export class UpbitWebsocketService implements OnModuleInit {
   }
 
   async connect() {
-    this.ws = new WebSocket(WEBSOCKET_ENDPOINTS.UPBIT);
+    this.ws = new WebSocket(WEBSOCKET_ENDPOINTS.BITHUMB);
 
     this.ws.on('open', () => {
-      console.log('Upbit WebSocket Connected');
-      const subscribeMessage = JSON.stringify([
-        { ticket: 'test' },
-        {
-          type: 'ticker',
-          codes: upbitMarketData.map(market => market.market),
-          isOnlyRealtime: true,
-        },
-      ]);
+      console.log('Bithumb WebSocket Connected');
+      const subscribeMessage = JSON.stringify({
+        type: 'ticker',
+        symbols: bithumbMarketData.map(market => market.symbol),
+        tickTypes: ['30M'],
+      });
       this.ws.send(subscribeMessage);
     });
 
     this.ws.on('message', (data: Buffer) => {
       // 연결된 모든 클라이언트에게 데이터 전송
 
-      // NOTE:데이터 확인용 console.log
-      // console.log('Received data:', JSON.parse(data.toString()));
+      // NOTE: 데이터 확인용 console.log
+      console.log('Received data:', JSON.parse(data.toString()));
 
       this.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
@@ -40,10 +37,10 @@ export class UpbitWebsocketService implements OnModuleInit {
         }
       });
     });
+
     this.ws.on('close', () => {
-      console.log('Disconnected from Upbit WebSocket');
+      console.log('Disconnected from Bithumb WebSocket');
       // 재연결 시도
-      // XXX : 재연결을 몇번까지 할건지도 정해줘야 될꺼같음
       setTimeout(() => this.connect(), 1000);
     });
 

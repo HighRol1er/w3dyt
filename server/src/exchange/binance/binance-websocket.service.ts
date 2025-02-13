@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { WebSocket } from 'ws';
 import { WEBSOCKET_ENDPOINTS } from 'src/common/constants';
-
+import { binanceMarketData } from 'scripts/market/binance-market-data';
 @Injectable()
 export class BinanceWebsocketService implements OnModuleInit {
   private ws: WebSocket;
@@ -12,17 +12,13 @@ export class BinanceWebsocketService implements OnModuleInit {
   }
 
   async connect() {
-    this.ws = new WebSocket('wss://stream.binance.com:9443/ws');
-
+    this.ws = new WebSocket(WEBSOCKET_ENDPOINTS.BINANCE);
+    //'btcusdt@ticker'
     this.ws.on('open', () => {
       console.log('Binance WebSocket Connected');
       const subscribeMessage = JSON.stringify({
         method: 'SUBSCRIBE',
-        params: [
-          'btcusdt@ticker', // BTC/USDT 티커
-          // 'ethusdt@ticker',  // ETH/USDT 티커
-          // 'xrpusdt@ticker',  // XRP/USDT 티커
-        ],
+        params: binanceMarketData.map(market => `${market.symbol.toLowerCase()}@ticker`),
         id: 1,
       });
       this.ws.send(subscribeMessage);
