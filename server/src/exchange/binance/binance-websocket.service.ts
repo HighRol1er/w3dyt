@@ -28,7 +28,7 @@ export class BinanceWebsocketService implements OnModuleInit {
       // 연결된 모든 클라이언트에게 데이터 전송
 
       // NOTE: 데이터 확인용 console.log
-      console.log('Received data:', JSON.parse(data.toString()));
+      // console.log('Received data:', JSON.parse(data.toString()));
 
       this.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {

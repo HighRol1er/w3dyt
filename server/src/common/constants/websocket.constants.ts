@@ -8,3 +8,10 @@ export const WEBSOCKET_ENDPOINTS = {
   UPBIT: 'wss://api.upbit.com/websocket/v1',
   BITHUMB: 'wss://pubwss.bithumb.com/pub/ws',
 };
+
+export const WEBSOCKET_CONFIG = {
+  RECONNECT: {
+    MAX_ATTEMPTS: 5,
+    DELAY: 1000, // 1초
+  },
+} as const;

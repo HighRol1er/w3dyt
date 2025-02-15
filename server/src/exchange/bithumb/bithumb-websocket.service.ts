@@ -1,12 +1,17 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { WebSocket } from 'ws';
-import { WEBSOCKET_ENDPOINTS } from 'src/common/constants';
+import { WEBSOCKET_ENDPOINTS, WEBSOCKET_CONFIG } from 'src/common/constants';
 import { bithumbMarketData } from 'scripts/market/bithumb-market-data';
 
 @Injectable()
 export class BithumbWebsocketService implements OnModuleInit {
   private ws: WebSocket;
   private clients: Set<WebSocket> = new Set();
+
+  // 재연결 관련
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = WEBSOCKET_CONFIG.RECONNECT.MAX_ATTEMPTS;
+  private reconnectDelay = WEBSOCKET_CONFIG.RECONNECT.DELAY;
 
   onModuleInit() {
     this.connect();
@@ -21,6 +26,7 @@ export class BithumbWebsocketService implements OnModuleInit {
         type: 'ticker',
         symbols: bithumbMarketData.map(market => market.symbol),
         tickTypes: ['30M'],
+        format: 'SIMPLE',
       });
       this.ws.send(subscribeMessage);
     });
@@ -29,7 +35,7 @@ export class BithumbWebsocketService implements OnModuleInit {
       // 연결된 모든 클라이언트에게 데이터 전송
 
       // NOTE: 데이터 확인용 console.log
-      console.log('Received data:', JSON.parse(data.toString()));
+      // console.log('Received data:', JSON.parse(data.toString()));
 
       this.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
@@ -40,8 +46,18 @@ export class BithumbWebsocketService implements OnModuleInit {
 
     this.ws.on('close', () => {
       console.log('Disconnected from Bithumb WebSocket');
-      // 재연결 시도
-      setTimeout(() => this.connect(), 1000);
+
+      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        console.log(
+          `Reconnecting... Attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}`,
+        );
+        setTimeout(() => {
+          this.reconnectAttempts++;
+          this.connect();
+        }, this.reconnectDelay);
+      } else {
+        console.error('Max reconnection attempts reached');
+      }
     });
 
     this.ws.on('error', error => {
