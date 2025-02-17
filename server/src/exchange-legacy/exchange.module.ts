@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { SocketModule } from '../socket/socket.module';
+// import { SocketModule } from '../socket/socket.module'; // 소켓 모듈 임포트
 import { UpbitController } from './upbit/upbit.controller';
 import { UpbitService } from './upbit/upbit.service';
 import { BinanceController } from './binance/binance.controller';
@@ -13,9 +13,8 @@ import { BybitService } from './bybit/bybit.service';
 import { CoinbaseController } from './coinbase/coinbase.controller';
 import { CoinbaseService } from './coinbase/coinbase.service';
 
-
 @Module({
-  imports: [SocketModule],
+  // imports: [SocketModule],
   controllers: [
     UpbitController,
     BinanceController,
@@ -23,7 +22,6 @@ import { CoinbaseService } from './coinbase/coinbase.service';
     OKXController,
     BybitController,
     CoinbaseController,
-
   ],
   providers: [
     UpbitService,
@@ -32,7 +30,6 @@ import { CoinbaseService } from './coinbase/coinbase.service';
     OKXService,
     BybitService,
     CoinbaseService,
-
   ],
   exports: [
     UpbitService,
@@ -41,7 +38,6 @@ import { CoinbaseService } from './coinbase/coinbase.service';
     OKXService,
     BybitService,
     CoinbaseService,
-
   ],
 })
 export class ExchangeModule {}

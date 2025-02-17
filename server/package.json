@@ -9,7 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start:dev": "PORT=3010 nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -25,7 +25,8 @@
     "market:bithumb": "ts-node scripts/bithumb-market-fetcher.ts",
     "market:coinbase": "ts-node scripts/coinbase-market-fetcher.ts",
     "market:okx": "ts-node scripts/okx-market-fetcher.ts",
-    "market:all": "pnpm market:upbit && pnpm market:binance && pnpm market:bithumb && pnpm market:coinbase && pnpm market:okx"
+    "market:kraken": "ts-node scripts/kraken-market-fetcher.ts",
+    "market:all": "pnpm market:upbit && pnpm market:binance && pnpm market:bithumb && pnpm market:coinbase && pnpm market:okx && pnpm market:kraken"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

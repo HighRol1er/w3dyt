@@ -48,15 +48,16 @@ export class UpbitWebsocketService implements OnModuleInit {
     this.ws.on('message', (data: Buffer) => {
       const rawData = JSON.parse(data.toString());
 
-      const filteredData: CoinInfo = {
-        cd: rawData.cd,
-        tp: rawData.tp,
-        scr: rawData.scr,
-        atp24h: rawData.atp24h,
+      const filteredData = {
+        exchange: 'UPBIT',
+        symbol: rawData.cd,
+        price: rawData.tp,
+        changeRate: rawData.scr.toFixed(2) + '%',
+        volume24h: rawData.atp24h,
       };
 
       // NOTE: 데이터 확인용 console.log
-      console.log('Filtered data:', filteredData);
+      // console.log('Filtered data:', filteredData);
 
       this.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
