@@ -1999,6 +1999,12 @@ export const bithumbMarketData = [
     "payment_currency": "KRW"
   },
   {
+    "symbol": "THE_KRW",
+    "name": "THE",
+    "order_currency": "THE",
+    "payment_currency": "KRW"
+  },
+  {
     "symbol": "VANA_KRW",
     "name": "VANA",
     "order_currency": "VANA",

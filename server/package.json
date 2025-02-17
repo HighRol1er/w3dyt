@@ -26,7 +26,8 @@
     "market:coinbase": "ts-node scripts/coinbase-market-fetcher.ts",
     "market:okx": "ts-node scripts/okx-market-fetcher.ts",
     "market:kraken": "ts-node scripts/kraken-market-fetcher.ts",
-    "market:all": "pnpm market:upbit && pnpm market:binance && pnpm market:bithumb && pnpm market:coinbase && pnpm market:okx && pnpm market:kraken"
+    "market:bybit": "ts-node scripts/bybit-market-fetcher.ts",
+    "market:all": "pnpm market:upbit && pnpm market:binance && pnpm market:bithumb && pnpm market:coinbase && pnpm market:okx && pnpm market:kraken && pnpm market:bybit"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

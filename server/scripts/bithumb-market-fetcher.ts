@@ -2,7 +2,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 
-interface MarketData {
+interface BithumbMarketData {
   name: string;
   symbol: string;
   order_currency: string; // 기본 자산 (BTC, ETH 등)
@@ -34,6 +34,7 @@ const fetchBithumbMarketData = async () => {
       }));
 
     console.log(`Found ${markets.length} KRW markets`);
+    console.log('markets', markets);
 
     const fileContent = `// 빗썸 마켓 목록 (자동 생성됨)
 export const bithumbMarketData = ${JSON.stringify(markets, null, 2)} as const;

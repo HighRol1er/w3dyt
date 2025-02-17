@@ -5,14 +5,17 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, WebSocket } from 'ws';
-import { UpbitWebsocketService } from '../exchange/upbit/upbit-websocket.service';
-import { BinanceWebsocketService } from '../exchange/binance/binance-websocket.service';
-import { BithumbWebsocketService } from '../exchange/bithumb/bithumb-websocket.service';
+import { UpbitWebsocketService } from '../exchange/upbit/upbit-ws.service';
+import { BinanceWebsocketService } from '../exchange/binance/binance-ws.service';
+import { BithumbWebsocketService } from '../exchange/bithumb/bithumb-ws.service';
 
 @WebSocketGateway({
   path: '/exchange',
   cors: {
-    origin: 'http://localhost:3001', // Next.js 클라이언트 주소
+    origin: [
+      process.env.CLIENT_URL_DEV || 'http://localhost:3000',
+      process.env.CLIENT_URL_PROD || 'https://your-production-domain.com',
+    ],
     credentials: true,
   },
 })

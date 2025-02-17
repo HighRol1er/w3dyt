@@ -22,9 +22,7 @@ export type DrizzleClient = NodePgDatabase<typeof schema>;
           password: configService.get('POSTGRES_PASSWORD'),
           database: configService.get('POSTGRES_DB'),
           max: parseInt(configService.get('POSTGRES_MAX_CONNECTIONS', '100')),
-          idleTimeoutMillis: parseInt(
-            configService.get('POSTGRES_IDLE_TIMEOUT', '30000'),
-          ),
+          idleTimeoutMillis: parseInt(configService.get('POSTGRES_IDLE_TIMEOUT', '30000')),
           connectionTimeoutMillis: 2000,
         });
 
@@ -44,4 +42,4 @@ export type DrizzleClient = NodePgDatabase<typeof schema>;
   ],
   exports: ['DATABASE'],
 })
-export class DatabaseModule {} 
+export class DatabaseModule {}

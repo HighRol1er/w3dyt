@@ -26,7 +26,11 @@ export default function TestPage() {
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        setMessages((prev) => [...prev.slice(-9), data]); // 최근 10개만 유지
+        setMessages((prev) => {
+          // 같은 심볼의 이전 데이터를 제거하고 새 데이터 추가
+          const filtered = prev.filter((msg) => msg.symbol !== data.symbol);
+          return [...filtered, data];
+        });
       } catch (error) {
         console.error("Failed to parse message:", error);
       }

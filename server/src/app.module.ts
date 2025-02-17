@@ -6,10 +6,11 @@ import { ExchangeGateway } from './gateway/exchange.gateway';
 
 @Module({
   imports: [
-    // ConfigModule.forRoot({
-    //   isGlobal: true,
-    // }),
-    // DatabaseModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    DatabaseModule,
     ExchangeModule,
   ],
   providers: [ExchangeGateway],

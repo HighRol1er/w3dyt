@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 // import * as cron from 'node-cron';
 
-interface MarketData {
+interface UpbitMarketData {
   market: string;
   korean_name: string;
   english_name: string;
@@ -22,7 +22,9 @@ const fetchUpbitMarketData = async () => {
   try {
     console.log('Fetching market data...', new Date().toISOString());
     const response = await axios.get('https://api.upbit.com/v1/market/all');
-    const markets = response.data.filter((market: MarketData) => market.market.startsWith('KRW'));
+    const markets = response.data.filter((market: UpbitMarketData) =>
+      market.market.startsWith('KRW'),
+    );
     console.log(`Found ${markets.length} KRW markets`);
 
     const fileContent = `// 업비트 마켓 목록 (자동 생성됨)
