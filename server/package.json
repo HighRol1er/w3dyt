@@ -20,10 +20,12 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:generate": "drizzle-kit generate:pg",
     "db:push": "drizzle-kit push:pg",
-    "market:upbit": "ts-node scripts/auto-upbit-market-data.ts",
-    "market:binance": "ts-node scripts/auto-binance-market-data.ts",
-    "market:bithumb": "ts-node scripts/auto-bithumb-market-data.ts",
-    "market:all": "pnpm market:upbit && pnpm market:binance && pnpm market:bithumb"
+    "market:upbit": "ts-node scripts/upbit-market-fetcher.ts",
+    "market:binance": "ts-node scripts/binance-market-fetcher.ts",
+    "market:bithumb": "ts-node scripts/bithumb-market-fetcher.ts",
+    "market:coinbase": "ts-node scripts/coinbase-market-fetcher.ts",
+    "market:okx": "ts-node scripts/okx-market-fetcher.ts",
+    "market:all": "pnpm market:upbit && pnpm market:binance && pnpm market:bithumb && pnpm market:coinbase && pnpm market:okx"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
