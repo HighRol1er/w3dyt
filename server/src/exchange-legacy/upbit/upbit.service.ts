@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { API_ENDPOINTS } from 'src/common/constants/api.constants';
-
+import { API_ENDPOINTS } from 'src/common/constants/api-endpoint.constants';
 
 export interface Market {
   market: string;
@@ -53,23 +52,22 @@ export class UpbitService {
     try {
       // 1. 먼저 모든 마켓 목록을 가져옵니다
       const markets = await this.getMarkets();
-      
+
       // 2. KRW 마켓만 필터링 (선택사항)
       const krwMarkets = markets
         .filter(market => market.market.startsWith('KRW-'))
         .map(market => market.market);
-      
+
       // 3. 한 번의 요청으로 모든 마켓의 가격 정보를 가져옵니다
       const response = await axios.get<UpbitTicker[]>(`${this.UPBIT_API_URL}/ticker`, {
         params: {
           markets: krwMarkets.join(','),
         },
       });
-      
+
       return response.data;
     } catch (error) {
       throw new Error(`전체 마켓 가격 조회 실패: ${error.message}`);
     }
   }
-
 }

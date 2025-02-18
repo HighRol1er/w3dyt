@@ -3,10 +3,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 interface BithumbMarketData {
-  name: string;
-  symbol: string;
-  order_currency: string; // 기본 자산 (BTC, ETH 등)
-  payment_currency: string; // 견적 자산 (KRW 등)
+  market: string;
+  korean_name: string;
+  english_name: string;
 }
 
 const filePath = path.join(__dirname, 'market', 'bithumb-market-data.ts');
@@ -21,20 +20,20 @@ const ensureDirectoryExists = () => {
 const fetchBithumbMarketData = async () => {
   try {
     console.log('Fetching Bithumb market data...', new Date().toISOString());
-    const response = await axios.get('https://api.bithumb.com/public/ticker/ALL_KRW');
+    const response = await axios.get('https://api.bithumb.com/v1/market/all');
 
     // KRW 마켓만 필터링
-    const markets = Object.keys(response.data.data)
-      .filter(symbol => symbol !== 'date')
-      .map(symbol => ({
-        symbol: `${symbol}_KRW`,
-        name: symbol,
-        order_currency: symbol,
-        payment_currency: 'KRW',
+    const markets = response.data
+      .filter((coinInfo: BithumbMarketData) => coinInfo.market.startsWith('KRW'))
+      .map((coinInfo: BithumbMarketData) => ({
+        symbol: coinInfo.market,
+        kor_name: coinInfo.korean_name,
+        eng_name: coinInfo.english_name,
+        baseAsset: coinInfo.market.split('-')[1],
+        quoteAsset: 'KRW',
       }));
 
     console.log(`Found ${markets.length} KRW markets`);
-    console.log('markets', markets);
 
     const fileContent = `// 빗썸 마켓 목록 (자동 생성됨)
 export const bithumbMarketData = ${JSON.stringify(markets, null, 2)} as const;
@@ -45,7 +44,6 @@ export type BithumbMarket = typeof bithumbMarketData[number];
     ensureDirectoryExists();
     fs.writeFileSync(filePath, fileContent, 'utf-8');
 
-    console.log(`Market list updated: ${markets.length} markets found`);
     console.log(`File saved to: ${filePath}`);
   } catch (error) {
     console.error('Failed to update Bithumb market list:', error);

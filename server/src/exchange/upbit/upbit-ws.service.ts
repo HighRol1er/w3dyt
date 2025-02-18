@@ -1,142 +1,49 @@
-// import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-// import { WebSocket } from 'ws';
-// import { WEBSOCKET_ENDPOINTS, WEBSOCKET_CONFIG } from 'src/common/constants';
-// import { upbitMarketData } from 'scripts/market/upbit-market-data';
-
-// // 이게 지금 업비트에서만 쓰이는데
-// // 바이낸스랑 빗썸도 각 코드에 맞춰서 타입 재사용 가능하게 해줘야함
-// interface CoinInfo {
-//   cd: string;
-//   tp: number;
-//   scr: number; // * 100하면 %로 나옴
-//   atp24h: number;
-// }
-
-// @Injectable()
-// export class UpbitWebsocketService implements OnModuleInit {
-//   private ws: WebSocket;
-//   private clients: Set<WebSocket> = new Set();
-//   // 재연결 관련
-//   private reconnectAttempts = 0;
-//   private maxReconnectAttempts = WEBSOCKET_CONFIG.RECONNECT.MAX_ATTEMPTS;
-//   private reconnectDelay = WEBSOCKET_CONFIG.RECONNECT.DELAY;
-
-//   private readonly logger = new Logger(UpbitWebsocketService.name); // 로거
-
-//   onModuleInit() {
-//     this.connect();
-//   }
-
-//   async connect() {
-//     this.ws = new WebSocket(WEBSOCKET_ENDPOINTS.UPBIT);
-
-//     this.ws.on('open', () => {
-//       console.log('Upbit WebSocket Connected');
-//       const subscribeMessage = JSON.stringify([
-//         { ticket: 'test' },
-//         {
-//           type: 'ticker',
-//           codes: upbitMarketData.map(market => market.market),
-//         },
-//         { format: 'SIMPLE' },
-//       ]);
-//       this.ws.send(subscribeMessage);
-//     });
-
-//     this.ws.on('message', (data: Buffer) => {
-//       const rawData = JSON.parse(data.toString());
-
-//       const filteredData = {
-//         exchange: 'UPBIT',
-//         symbol: rawData.cd,
-//         price: rawData.tp,
-//         changeRate: rawData.scr.toFixed(2) + '%',
-//         volume24h: rawData.atp24h,
-//       };
-
-//       // NOTE: 데이터 확인용 console.log
-//       // console.log('Filtered data:', filteredData);
-//       // console.log('Raw data:', rawData);
-
-//       this.clients.forEach(client => {
-//         if (client.readyState === WebSocket.OPEN) {
-//           client.send(JSON.stringify(filteredData));
-//         }
-//       });
-//     });
-//     this.ws.on('close', () => {
-//       console.log('Disconnected from Upbit WebSocket');
-
-//       if (this.reconnectAttempts < this.maxReconnectAttempts) {
-//         console.log(
-//           `Reconnecting... Attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}`,
-//         );
-//         setTimeout(() => {
-//           this.reconnectAttempts++;
-//           this.connect();
-//         }, this.reconnectDelay);
-//       } else {
-//         console.error('Max reconnection attempts reached');
-//       }
-//     });
-
-//     this.ws.on('error', error => {
-//       console.error('WebSocket error:', error);
-//     });
-//   }
-
-//   // 클라이언트 연결 관리
-//   handleConnection(client: WebSocket) {
-//     this.clients.add(client);
-//     console.log('Client connected');
-
-//     client.on('close', () => {
-//       this.clients.delete(client);
-//       console.log('Client disconnected');
-//     });
-//   }
-// }
 import { Injectable } from '@nestjs/common';
-import { WEBSOCKET_ENDPOINTS } from 'src/common/constants';
+import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
 import { upbitMarketData } from 'scripts/market/upbit-market-data';
 import { BaseWebsocketService } from '../base/base-ws.service';
 import { formatChangeRate } from 'src/common/utils/number.util';
-
+import {
+  UpbitSubscribeMessageType,
+  ParseMessageDataType,
+  UpbitRawDataType,
+} from 'src/types/websocket';
 @Injectable()
 export class UpbitWebsocketService extends BaseWebsocketService {
+  protected readonly endpoint = WEBSOCKET_ENDPOINTS.UPBIT;
+
   constructor() {
     super('Upbit');
   }
-
-  protected getWebSocketEndpoint(): string {
-    return WEBSOCKET_ENDPOINTS.UPBIT;
-  }
-
-  protected getSubscribeMessage() {
+  // NOTE: 처음 스냅샷 이후 실시간 데이터 들어옴
+  protected getSubscribeMessage(): UpbitSubscribeMessageType {
     return [
       { ticket: 'test' },
       {
         type: 'ticker',
-        codes: upbitMarketData.map(market => market.market),
+        codes: upbitMarketData.map(market => market.symbol),
       },
       { format: 'SIMPLE' },
     ];
   }
 
-  protected parseMessageData(data: Buffer) {
-    const rawData = JSON.parse(data.toString());
-    const formattedData = {
-      exchange: 'UPBIT',
-      symbol: rawData.cd,
-      price: rawData.tp,
-      changeRate: formatChangeRate(rawData.scr),
-      volume24h: rawData.atp24h,
-    };
+  protected parseMessageData(data: Buffer): ParseMessageDataType {
+    const rawData: UpbitRawDataType = JSON.parse(data.toString());
 
-    // 로깅 추가
-    this.logger.debug('Formatted data:', formattedData);
-    // 원본 데이터도 로깅하고 싶다면
-    // this.logger.debug('Raw data:', rawData);
+    // XXX : 아마 currentPrice랑 tradeVolume 문자열로 바꿔서 소수점 처리 + 콤마 처리 필요할 듯
+    // 그리고 currentPrice에 대한 가격 SHIB같은 경우는 가격이 소수점이라서 가격 자리수마다 포메팅이 필요함 (util 함수로 만들어야함)
+
+    // XXX : 이거 타입 어떻게 해야되지 제네릭?
+    const formattedData: ParseMessageDataType = {
+      exchange: EXCHANGE_NAME.UPBIT,
+      symbol: rawData.cd,
+      currentPrice: rawData.tp,
+      changeRate: formatChangeRate(rawData.scr),
+      tradeVolume: rawData.atp24h,
+    };
+    // NOTE: 데이터 확인용 console.log
+    // console.log('rawData: ', rawData);
+    // console.log('formattedData: ', formattedData);
 
     return formattedData;
   }

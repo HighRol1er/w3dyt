@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios, { AxiosRequestConfig } from 'axios';
-import { API_ENDPOINTS } from '../../common/constants/api.constants';
+import { API_ENDPOINTS } from '../../common/constants/api-endpoint.constants';
 
 export interface CoinbaseTicker {
   product_id: string;
@@ -39,10 +39,10 @@ export class CoinbaseService {
 
       // USD 마켓만 필터링하고 거래 가능한 마켓만 선택
       const activeUsdMarkets = response.data.filter(
-        product => 
-          product.quote_currency === 'USD' && 
+        product =>
+          product.quote_currency === 'USD' &&
           !product.trading_disabled &&
-          product.status === 'online'
+          product.status === 'online',
       );
 
       return activeUsdMarkets;

@@ -43,7 +43,6 @@ export type BinanceMarket = typeof binanceMarketData[number];
     ensureDirectoryExists();
     fs.writeFileSync(filePath, fileContent, 'utf-8');
 
-    console.log(`Market list updated: ${markets.length} markets found`);
     console.log(`File saved to: ${filePath}`);
   } catch (error) {
     console.error('Failed to update Binance market list:', error);

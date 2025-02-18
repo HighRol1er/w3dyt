@@ -22,6 +22,7 @@ const fetchBybitMarketData = async () => {
     console.log('Fetching Bybit market data...', new Date().toISOString());
     const response = await axios.get('https://api.bybit.com/v5/market/tickers?category=spot');
 
+    console.log('response', response.data);
     // USDT 마켓만 필터링
     const markets = response.data.result.list
       .filter((market: BybitMarketData) => market.symbol.endsWith('USDT'))
@@ -42,7 +43,6 @@ export type BybitMarket = typeof bybitMarketData[number];
     ensureDirectoryExists();
     fs.writeFileSync(filePath, fileContent, 'utf-8');
 
-    console.log(`Market list updated: ${markets.length} markets found`);
     console.log(`File saved to: ${filePath}`);
   } catch (error) {
     console.error('Failed to update Bybit market list:', error);

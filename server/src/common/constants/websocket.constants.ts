@@ -8,7 +8,7 @@ export const WEBSOCKET_ENDPOINTS = {
   // Korea exchange
   UPBIT: 'wss://api.upbit.com/websocket/v1',
   BITHUMB: 'wss://pubwss.bithumb.com/pub/ws',
-};
+} as const;
 
 export const WEBSOCKET_CONFIG = {
   RECONNECT: {

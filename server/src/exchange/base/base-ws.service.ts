@@ -1,7 +1,7 @@
 import { OnModuleInit, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
 import { WEBSOCKET_CONFIG } from 'src/common/constants';
-
+import { SubscribeMessageType, ParseMessageDataType } from 'src/types/websocket';
 export abstract class BaseWebsocketService implements OnModuleInit {
   protected ws: WebSocket;
   protected clients: Set<WebSocket> = new Set();
@@ -9,6 +9,7 @@ export abstract class BaseWebsocketService implements OnModuleInit {
   protected maxReconnectAttempts = WEBSOCKET_CONFIG.RECONNECT.MAX_ATTEMPTS;
   protected reconnectDelay = WEBSOCKET_CONFIG.RECONNECT.DELAY;
   protected readonly logger: Logger;
+  protected abstract readonly endpoint: string;
 
   constructor(protected readonly exchangeName: string) {
     this.logger = new Logger(`${exchangeName}WebsocketService`);
@@ -18,12 +19,13 @@ export abstract class BaseWebsocketService implements OnModuleInit {
     this.connect();
   }
 
-  protected abstract getWebSocketEndpoint(): string;
-  protected abstract getSubscribeMessage(): any;
-  protected abstract parseMessageData(data: Buffer): any;
+  // XXX: any타입 후에 교체 할 것
+
+  protected abstract getSubscribeMessage(): SubscribeMessageType;
+  protected abstract parseMessageData(data: Buffer): ParseMessageDataType;
 
   protected async connect() {
-    this.ws = new WebSocket(this.getWebSocketEndpoint());
+    this.ws = new WebSocket(this.endpoint);
 
     this.ws.on('open', () => {
       this.logger.log(`${this.exchangeName} WebSocket Connected`);
@@ -68,11 +70,11 @@ export abstract class BaseWebsocketService implements OnModuleInit {
 
   handleConnection(client: WebSocket) {
     this.clients.add(client);
-    this.logger.log('Client connected');
+    this.logger.log(`${this.exchangeName} Client connected`);
 
     client.on('close', () => {
       this.clients.delete(client);
-      this.logger.log('Client disconnected');
+      this.logger.log(`${this.exchangeName} Client disconnected`);
     });
   }
 }

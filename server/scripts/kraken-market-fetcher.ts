@@ -31,7 +31,7 @@ const fetchKrakenMarketData = async () => {
         symbol: market.altname,
         baseAsset: market.base,
         quoteAsset: 'USD',
-        wsname: market.wsname,
+        // wsname: market.wsname,
       }));
 
     console.log(`Found ${markets.length} USD markets`);
@@ -45,7 +45,6 @@ export type KrakenMarket = typeof krakenMarketData[number];
     ensureDirectoryExists();
     fs.writeFileSync(filePath, fileContent, 'utf-8');
 
-    console.log(`Market list updated: ${markets.length} markets found`);
     console.log(`File saved to: ${filePath}`);
   } catch (error) {
     console.error('Failed to update Kraken market list:', error);

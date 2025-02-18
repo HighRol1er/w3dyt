@@ -22,9 +22,16 @@ const fetchUpbitMarketData = async () => {
   try {
     console.log('Fetching market data...', new Date().toISOString());
     const response = await axios.get('https://api.upbit.com/v1/market/all');
-    const markets = response.data.filter((market: UpbitMarketData) =>
-      market.market.startsWith('KRW'),
-    );
+
+    const markets = response.data
+      .filter((coinInfo: UpbitMarketData) => coinInfo.market.startsWith('KRW'))
+      .map((coinInfo: UpbitMarketData) => ({
+        symbol: coinInfo.market,
+        kor_name: coinInfo.korean_name,
+        eng_name: coinInfo.english_name,
+        baseAsset: coinInfo.market.split('-')[1],
+        quoteAsset: 'KRW',
+      }));
     console.log(`Found ${markets.length} KRW markets`);
 
     const fileContent = `// 업비트 마켓 목록 (자동 생성됨)
@@ -36,7 +43,6 @@ export type UpbitMarket = typeof upbitMarketData[number];
     ensureDirectoryExists();
     fs.writeFileSync(filePath, fileContent, 'utf-8');
 
-    console.log(`Market list updated: ${markets.length} markets found`);
     console.log(`File saved to: ${filePath}`);
   } catch (error) {
     console.error('Failed to update market list:', error);

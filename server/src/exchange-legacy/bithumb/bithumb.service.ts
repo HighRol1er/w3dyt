@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { API_ENDPOINTS } from '../../common/constants/api.constants';
+import { API_ENDPOINTS } from '../../common/constants/api-endpoint.constants';
 
 export interface BithumbTicker {
   opening_price: string;
@@ -31,11 +31,10 @@ export class BithumbService {
       const response = await axios.get<BithumbResponse<{ [key: string]: BithumbTicker }>>(
         `${this.BITHUMB_API_URL}/ticker/ALL_KRW`,
       );
-      
+
       return response.data;
     } catch (error) {
       throw new Error(`빗썸 마켓 정보 조회 실패: ${error.message}`);
     }
   }
-
 }
