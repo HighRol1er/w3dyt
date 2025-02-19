@@ -4,3 +4,4 @@
 export * from './api-endpoint.constants';
 export * from './websocket.constants';
 export * from './exchange';
+export * from './google-finance';
