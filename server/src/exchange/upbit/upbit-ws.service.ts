@@ -32,8 +32,6 @@ export class UpbitWebsocketService extends BaseWebsocketService {
 
     // XXX : 아마 currentPrice랑 tradeVolume 문자열로 바꿔서 소수점 처리 + 콤마 처리 필요할 듯
     // 그리고 currentPrice에 대한 가격 SHIB같은 경우는 가격이 소수점이라서 가격 자리수마다 포메팅이 필요함 (util 함수로 만들어야함)
-
-    // XXX : 이거 타입 어떻게 해야되지 제네릭?
     const formattedData: ParseMessageDataType = {
       exchange: EXCHANGE_NAME.UPBIT,
       symbol: rawData.cd,

@@ -14,4 +14,4 @@ export const EXCHANGE_NAME = {
   BITTREX: 'BITTREX',
   KUCOIN: 'KUCOIN',
   BITMEX: 'BITMEX',
-};
+} as const;
