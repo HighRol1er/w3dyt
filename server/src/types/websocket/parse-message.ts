@@ -4,4 +4,4 @@ export type ParseMessageDataType = {
   currentPrice: string | number;
   changeRate: string | number;
   tradeVolume: string | number;
-};
+} | null;

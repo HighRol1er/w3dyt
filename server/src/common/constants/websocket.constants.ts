@@ -7,7 +7,7 @@ export const WEBSOCKET_ENDPOINTS = {
   KRAKEN: 'wss://ws.kraken.com/v2',
   // Korea exchange
   UPBIT: 'wss://api.upbit.com/websocket/v1',
-  BITHUMB: 'wss://pubwss.bithumb.com/pub/ws',
+  BITHUMB: 'wss://ws-api.bithumb.com/websocket/v1',
 } as const;
 
 export const WEBSOCKET_CONFIG = {

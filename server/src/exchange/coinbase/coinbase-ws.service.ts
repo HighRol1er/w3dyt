@@ -1,82 +1,50 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { WebSocket } from 'ws';
-import { WEBSOCKET_ENDPOINTS, WEBSOCKET_CONFIG } from 'src/common/constants';
+import { Injectable } from '@nestjs/common';
+import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
 import { coinbaseMarketData } from 'scripts/market/coinbase-market-data';
+import { BaseWebsocketService } from '../base/base-ws.service';
+import {
+  CoinbaseRawDataType,
+  CoinbaseSubscribeMessageType,
+  ParseMessageDataType,
+} from 'src/types/websocket';
 
 @Injectable()
-export class CoinbaseWebsocketService implements OnModuleInit {
-  private ws: WebSocket;
-  private clients: Set<WebSocket> = new Set();
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = WEBSOCKET_CONFIG.RECONNECT.MAX_ATTEMPTS;
-  private reconnectDelay = WEBSOCKET_CONFIG.RECONNECT.DELAY;
+export class CoinbaseWebsocketService extends BaseWebsocketService {
+  protected readonly endpoint = WEBSOCKET_ENDPOINTS.COINBASE;
 
-  private readonly logger = new Logger(CoinbaseWebsocketService.name);
-
-  onModuleInit() {
-    this.connect();
+  constructor() {
+    super('Coinbase');
   }
 
-  async connect() {
-    this.ws = new WebSocket(WEBSOCKET_ENDPOINTS.COINBASE);
-
-    this.ws.on('open', () => {
-      this.logger.log('Coinbase WebSocket Connected');
-      const subscribeMessage = JSON.stringify({
-        type: 'subscribe',
-        product_ids: coinbaseMarketData.map(market => market.symbol),
-        channels: ['ticker'],
-      });
-      this.ws.send(subscribeMessage);
-    });
-
-    this.ws.on('message', (data: Buffer) => {
-      const rawData = JSON.parse(data.toString());
-      if (rawData.type === 'ticker') {
-        const filteredData = {
-          exchange: 'COINBASE',
-          symbol: rawData.product_id,
-          price: parseFloat(rawData.price),
-          changeRate:
-            ((parseFloat(rawData.price) / parseFloat(rawData.open_24h) - 1) * 100).toFixed(2) + '%',
-          volume24h: parseFloat(rawData.volume_24h),
-        };
-
-        this.clients.forEach(client => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(filteredData));
-          }
-        });
-      }
-    });
-
-    this.ws.on('close', () => {
-      this.logger.warn('Disconnected from Coinbase WebSocket');
-      if (this.reconnectAttempts < this.maxReconnectAttempts) {
-        this.logger.log(
-          `Reconnecting... Attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}`,
-        );
-        setTimeout(() => {
-          this.reconnectAttempts++;
-          this.connect();
-        }, this.reconnectDelay);
-      } else {
-        this.logger.error('Max reconnection attempts reached');
-      }
-    });
-
-    this.ws.on('error', error => {
-      this.logger.error('WebSocket error:', error);
-    });
+  protected getSubscribeMessage(): CoinbaseSubscribeMessageType {
+    return {
+      type: 'subscribe',
+      product_ids: coinbaseMarketData.map(market => market.symbol),
+      channels: ['ticker'],
+    };
   }
 
-  handleConnection(client: WebSocket) {
-    this.clients.add(client);
-    this.logger.log('Client connected');
+  protected parseMessageData(data: Buffer): ParseMessageDataType {
+    const rawData: CoinbaseRawDataType = JSON.parse(data.toString());
 
-    client.on('close', () => {
-      this.clients.delete(client);
-      this.logger.log('Client disconnected');
-    });
+    // Type guard
+    if (rawData.type !== 'ticker') {
+      return null;
+    }
+
+    const formattedData: ParseMessageDataType = {
+      exchange: EXCHANGE_NAME.COINBASE,
+      symbol: rawData.product_id,
+      currentPrice: parseFloat(rawData.price),
+      // XXX: coinbase는 롤링 24시간 기준이라서 한국 시간에 맞추려면 9시 데이터를 저장해서 조회해야 한다.
+      // 그리고 저장한 데이터를 기준으로 open price에 맞춰서 해야 함
+      changeRate: '',
+      tradeVolume: parseFloat(rawData.volume_24h),
+    };
+    // NOTE: 데이터 확인용 콘솔 출력
+    // console.log('rawData: ', rawData);
+    console.log('formattedData: ', formattedData);
+
+    return formattedData;
   }
 }

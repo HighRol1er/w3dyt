@@ -1,4 +1,8 @@
-// 업비트 웹소켓 응답 데이터 타입 (축약형)
+/**************************
+ *     KOREA EXCHANGE     *
+ **************************/
+
+// 업비트 웹소켓 응답 데이터 타입 (SIMPLE)
 export interface UpbitRawDataType {
   ty: 'ticker';
   cd: string; // code
@@ -35,39 +39,165 @@ export interface UpbitRawDataType {
   st: 'SNAPSHOT' | 'REALTIME'; // stream_type
 }
 
-// 빗썸 웹소켓 응답 데이터 타입
+// 빗썸 웹소켓 응답 데이터 타입 (SIMPLE)
 export interface BithumbRawDataType {
-  type: 'ticker';
-  code: string; // 마켓 코드 (ex: KRW-BTC)
-  opening_price: number; // 시가
-  high_price: number; // 고가
-  low_price: number; // 저가
-  trade_price: number; // 현재가
-  prev_closing_price: number; // 전일 종가
-  change: 'RISE' | 'EVEN' | 'FALL'; // 전일 대비
-  change_price: number; // 부호 없는 전일 대비 값
-  signed_change_price: number; // 전일 대비 값
-  change_rate: number; // 부호 없는 전일 대비 등락율
-  signed_change_rate: number; // 전일 대비 등락율
-  trade_volume: number; // 가장 최근 거래량
-  acc_trade_volume: number; // 누적 거래량
-  acc_trade_volume_24h: number; // 24시간 누적 거래량
-  acc_trade_price: number; // 누적 거래대금
-  acc_trade_price_24h: number; // 24시간 누적 거래대금
-  trade_date: string; // 최근 거래 일자 (ex: 20240910)
-  trade_time: string; // 최근 거래 시각 (ex: 091617)
-  trade_timestamp: number; // 체결 타임스탬프 (milliseconds)
-  ask_bid: 'ASK' | 'BID'; // 매수/매도 구분
-  acc_ask_volume: number; // 누적 매도량
-  acc_bid_volume: number; // 누적 매수량
-  highest_52_week_price: number; // 52주 최고가
-  highest_52_week_date: string; // 52주 최고가 달성일
-  lowest_52_week_price: number; // 52주 최저가
-  lowest_52_week_date: string; // 52주 최저가 달성일
-  market_state: 'ACTIVE' | 'PREVIEW' | 'DELISTED'; // 거래상태
-  is_trading_suspended: boolean; // 거래 정지 여부
-  delisting_date: string | null; // 상장폐지일
-  market_warning: 'NONE' | 'CAUTION'; // 유의 종목 여부
-  timestamp: number; // 타임스탬프 (milliseconds)
-  stream_type: 'SNAPSHOT' | 'REALTIME'; // 스트림 타입
+  ty: 'ticker';
+  cd: string; // 마켓 코드 (ex: KRW-BTC)
+  op: number; // 시가
+  hp: number; // 고가
+  lp: number; // 저가
+  tp: number; // 현재가
+  pcp: number; // 전일 종가
+  c: 'RISE' | 'EVEN' | 'FALL'; // 전일 대비
+  cp: number; // 부호 없는 전일 대비 값
+  scp: number; // 전일 대비 값
+  cr: number; // 부호 없는 전일 대비 등락율
+  scr: number; // 전일 대비 등락율
+  tv: number; // 가장 최근 거래량
+  atv: number; // 누적 거래량
+  atv24h: number; // 24시간 누적 거래량
+  atp: number; // 누적 거래대금
+  atp24h: number; // 24시간 누적 거래대금
+  tdt: string; // 최근 거래 일자 (ex: 20240910)
+  ttm: string; // 최근 거래 시각 (ex: 091617)
+  ttms: number; // 체결 타임스탬프 (milliseconds)
+  ab: 'ASK' | 'BID'; // 매수/매도 구분
+  aav: number; // 누적 매도량
+  abv: number; // 누적 매수량
+  h52wp: number; // 52주 최고가
+  h52wdt: string; // 52주 최고가 달성일
+  l52wp: number; // 52주 최저가
+  l52wdt: string; // 52주 최저가 달성일
+  ms: string;
+  its: boolean; // 거래 정지 여부
+  dd: string | null; // 상장폐지일
+  mw: 'NONE' | 'CAUTION'; // 유의 종목 여부
+  tms: number; // 타임스탬프 (milliseconds)
+  st: 'SNAPSHOT' | 'REALTIME'; // 스트림 타입
 }
+
+/**************************
+ *     GLOBAL EXCHANGE    *
+ **************************/
+
+export interface BinanceRawDataType {
+  e: string; // Event type
+  E: number; // Event time
+  s: string; // Symbol
+  p: string; // Price change
+  P: string; // Price change percent
+  w: string; // Weighted average price
+  x: string; // First trade(F)-1 price (first trade before the 24hr rolling window)
+  c: string; // Last price 현재 가격
+  Q: string; // Last quantity
+  b: string; // Best bid price
+  B: string; // Best bid quantity
+  a: string; // Best ask price
+  A: string; // Best ask quantity
+  o: string; // Open price
+  h: string; // High price
+  l: string; // Low price
+  v: string; // Total traded base asset volume
+  q: string; // Total traded quote asset volume
+  O: number; // Open time
+  C: number; // Close time
+  F: number; // First trade ID
+  L: number; // Last trade Id
+  n: number; // Number of trades
+}
+
+export interface BybitRawDataType {
+  topic: string; // 'tickers.BTCUSDT'
+  type: string; // 'snapshot' | 'delta'
+  data: {
+    symbol: string; // 'BTCUSDT'
+    lastPrice: string;
+    price24hPcnt: string;
+    volume24h: string;
+    // ... 기타 필드들
+  };
+  ts: number; // timestamp
+}
+
+export interface CoinbaseRawDataType {
+  type: 'ticker';
+  sequence: number;
+  product_id: string;
+  price: string;
+  open_24h: string;
+  volume_24h: string;
+  low_24h: string;
+  high_24h: string;
+  volume_30d: string;
+  best_bid: string;
+  best_bid_size: string;
+  best_ask: string;
+  best_ask_size: string;
+  side: string;
+  time: string;
+  trade_id: number;
+  last_size: string;
+}
+
+export interface KrakenRawDataType {
+  channel: 'ticker';
+  type: 'update';
+  data: [
+    {
+      symbol: string;
+      bid: number;
+      bid_qty: number;
+      ask: number;
+      ask_qty: number;
+      last: number;
+      volume: number;
+      vwap: number;
+      low: number;
+      high: number;
+      change: number;
+      change_pct: number;
+    },
+  ];
+}
+
+// OKX 구독 응답 메시지
+export interface OKXSubscribeResponse {
+  event: 'subscribe';
+  arg: {
+    channel: 'tickers';
+    instId: string;
+  };
+  connId: string;
+}
+
+// OKX 티커 데이터
+export interface OKXTickerData {
+  instType: string;
+  instId: string;
+  last: string;
+  lastSz: string;
+  askPx: string;
+  askSz: string;
+  bidPx: string;
+  bidSz: string;
+  open24h: string;
+  high24h: string;
+  low24h: string;
+  sodUtc0: string; // Start of day UTC 0
+  sodUtc8: string; // Start of day UTC+8
+  volCcy24h: string; // Volume in currency (USDT)
+  vol24h: string; // Volume in base currency (ETH)
+  ts: string; // spot
+}
+
+// OKX 실제 데이터 메시지
+export interface OKXDataMessage {
+  arg: {
+    channel: 'tickers';
+    instId: string;
+  };
+  data: OKXTickerData[];
+}
+
+// OKX 전체 메시지 타입
+export type OKXRawDataType = OKXSubscribeResponse | OKXDataMessage;

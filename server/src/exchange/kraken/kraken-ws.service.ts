@@ -1,84 +1,51 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { WebSocket } from 'ws';
-import { WEBSOCKET_ENDPOINTS, WEBSOCKET_CONFIG } from 'src/common/constants';
+import { Injectable } from '@nestjs/common';
+import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
 import { krakenMarketData } from 'scripts/market/kraken-market-data';
+import { BaseWebsocketService } from '../base/base-ws.service';
+import {
+  KrakenSubscribeMessageType,
+  ParseMessageDataType,
+  KrakenRawDataType,
+} from 'src/types/websocket';
 
 @Injectable()
-export class KrakenWebsocketService implements OnModuleInit {
-  private ws: WebSocket;
-  private clients: Set<WebSocket> = new Set();
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = WEBSOCKET_CONFIG.RECONNECT.MAX_ATTEMPTS;
-  private reconnectDelay = WEBSOCKET_CONFIG.RECONNECT.DELAY;
+export class KrakenWebsocketService extends BaseWebsocketService {
+  protected readonly endpoint = WEBSOCKET_ENDPOINTS.KRAKEN;
 
-  private readonly logger = new Logger(KrakenWebsocketService.name);
-
-  onModuleInit() {
-    this.connect();
+  constructor() {
+    super('Kraken');
   }
 
-  async connect() {
-    this.ws = new WebSocket(WEBSOCKET_ENDPOINTS.KRAKEN);
-
-    this.ws.on('open', () => {
-      this.logger.log('Kraken WebSocket Connected');
-      const subscribeMessage = JSON.stringify({
-        event: 'subscribe',
-        pair: krakenMarketData.map(market => market.wsname),
-        subscription: {
-          name: 'ticker',
-        },
-      });
-      this.ws.send(subscribeMessage);
-    });
-
-    this.ws.on('message', (data: Buffer) => {
-      const rawData = JSON.parse(data.toString());
-      if (Array.isArray(rawData) && rawData[2] === 'ticker') {
-        const filteredData = {
-          exchange: 'KRAKEN',
-          symbol: rawData[3],
-          price: parseFloat(rawData[1].c[0]),
-          changeRate:
-            ((parseFloat(rawData[1].c[0]) / parseFloat(rawData[1].o) - 1) * 100).toFixed(2) + '%',
-          volume24h: parseFloat(rawData[1].v[1]),
-        };
-
-        this.clients.forEach(client => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(filteredData));
-          }
-        });
-      }
-    });
-
-    this.ws.on('close', () => {
-      this.logger.warn('Disconnected from Kraken WebSocket');
-      if (this.reconnectAttempts < this.maxReconnectAttempts) {
-        this.logger.log(
-          `Reconnecting... Attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}`,
-        );
-        setTimeout(() => {
-          this.reconnectAttempts++;
-          this.connect();
-        }, this.reconnectDelay);
-      } else {
-        this.logger.error('Max reconnection attempts reached');
-      }
-    });
-
-    this.ws.on('error', error => {
-      this.logger.error('WebSocket error:', error);
-    });
+  protected getSubscribeMessage(): KrakenSubscribeMessageType {
+    return {
+      method: 'subscribe',
+      params: {
+        channel: 'ticker',
+        symbol: krakenMarketData.map(market => market.wsname),
+      },
+    };
   }
 
-  handleConnection(client: WebSocket) {
-    this.clients.add(client);
-    this.logger.log('Client connected');
+  protected parseMessageData(data: Buffer): ParseMessageDataType {
+    const rawData: KrakenRawDataType = JSON.parse(data.toString());
 
-    client.on('close', () => {
-      this.clients.delete(client);
-      this.logger.log('Client disconnected');
-    });
+    // 시스템 메시지나 다른 채널 메시지 무시
+    if (!rawData.channel || rawData.channel !== 'ticker' || !rawData.data?.[0]) {
+      return null;
+    }
+
+    const formattedData: ParseMessageDataType = {
+      exchange: EXCHANGE_NAME.KRAKEN,
+      symbol: rawData.data[0].symbol,
+      currentPrice: rawData.data[0].last,
+      changeRate: rawData.data[0].change_pct, // 이미 퍼센트로 계산되어 있음
+      tradeVolume: rawData.data[0].volume,
+    };
+
+    // NOTE: 데이터 확인용 콘솔 출력
+    // console.log('rawData: ', rawData);
+    console.log('formattedData: ', formattedData);
+
+    return formattedData;
   }
 }

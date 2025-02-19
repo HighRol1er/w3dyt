@@ -43,7 +43,7 @@ export class UpbitWebsocketService extends BaseWebsocketService {
     };
     // NOTE: 데이터 확인용 console.log
     // console.log('rawData: ', rawData);
-    // console.log('formattedData: ', formattedData);
+    console.log('formattedData: ', formattedData);
 
     return formattedData;
   }

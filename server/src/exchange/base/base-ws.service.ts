@@ -19,10 +19,10 @@ export abstract class BaseWebsocketService implements OnModuleInit {
     this.connect();
   }
 
-  // XXX: any타입 후에 교체 할 것
-
   protected abstract getSubscribeMessage(): SubscribeMessageType;
+  // protected abstract getSubscribeMessage(): any;
   protected abstract parseMessageData(data: Buffer): ParseMessageDataType;
+  // protected abstract parseMessageData(data: Buffer): any;
 
   protected async connect() {
     this.ws = new WebSocket(this.endpoint);

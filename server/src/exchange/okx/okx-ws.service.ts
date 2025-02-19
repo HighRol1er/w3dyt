@@ -1,87 +1,55 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { WebSocket } from 'ws';
-import { WEBSOCKET_ENDPOINTS, WEBSOCKET_CONFIG } from 'src/common/constants';
+import { Injectable } from '@nestjs/common';
+import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
 import { okxMarketData } from 'scripts/market/okx-market-data';
+import { BaseWebsocketService } from '../base/base-ws.service';
+import {
+  OKXSubscribeMessageType,
+  ParseMessageDataType,
+  OKXRawDataType,
+  OKXSubscribeResponse,
+} from 'src/types/websocket';
 
 @Injectable()
-export class OKXWebsocketService implements OnModuleInit {
-  private ws: WebSocket;
-  private clients: Set<WebSocket> = new Set();
-  private reconnectAttempts = 0;
-  private maxReconnectAttempts = WEBSOCKET_CONFIG.RECONNECT.MAX_ATTEMPTS;
-  private reconnectDelay = WEBSOCKET_CONFIG.RECONNECT.DELAY;
+export class OKXWebsocketService extends BaseWebsocketService {
+  protected readonly endpoint = WEBSOCKET_ENDPOINTS.OKX;
 
-  private readonly logger = new Logger(OKXWebsocketService.name);
-
-  onModuleInit() {
-    this.connect();
+  constructor() {
+    super('OKX');
   }
 
-  async connect() {
-    this.ws = new WebSocket(WEBSOCKET_ENDPOINTS.OKX);
-
-    this.ws.on('open', () => {
-      this.logger.log('OKX WebSocket Connected');
-      const subscribeMessage = JSON.stringify({
-        op: 'subscribe',
-        args: okxMarketData.map(market => ({
-          channel: 'tickers',
-          instId: market.symbol,
-        })),
-      });
-      this.ws.send(subscribeMessage);
-    });
-
-    this.ws.on('message', (data: Buffer) => {
-      const rawData = JSON.parse(data.toString());
-      if (rawData.data) {
-        const filteredData = {
-          exchange: 'OKX',
-          symbol: rawData.data[0].instId,
-          price: parseFloat(rawData.data[0].last),
-          changeRate: parseFloat(rawData.data[0].vol24h).toFixed(2) + '%',
-          volume24h: parseFloat(rawData.data[0].vol24h),
-        };
-
-        // NOTE: 데이터 확인용 console.log
-        // console.log('Filtered data:', filteredData);
-        // console.log('Raw data:', rawData);
-
-        this.clients.forEach(client => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(filteredData));
-          }
-        });
-      }
-    });
-
-    this.ws.on('close', () => {
-      this.logger.warn('Disconnected from OKX WebSocket');
-      if (this.reconnectAttempts < this.maxReconnectAttempts) {
-        this.logger.log(
-          `Reconnecting... Attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}`,
-        );
-        setTimeout(() => {
-          this.reconnectAttempts++;
-          this.connect();
-        }, this.reconnectDelay);
-      } else {
-        this.logger.error('Max reconnection attempts reached');
-      }
-    });
-
-    this.ws.on('error', error => {
-      this.logger.error('WebSocket error:', error);
-    });
+  protected getSubscribeMessage(): OKXSubscribeMessageType {
+    return {
+      op: 'subscribe',
+      args: okxMarketData.map(market => ({
+        channel: 'tickers',
+        instId: market.symbol,
+      })),
+    };
   }
 
-  handleConnection(client: WebSocket) {
-    this.clients.add(client);
-    this.logger.log('Client connected');
+  protected parseMessageData(data: Buffer): ParseMessageDataType {
+    const rawData: OKXRawDataType | OKXSubscribeResponse = JSON.parse(data.toString());
+    // console.log('rawData: ', rawData);
 
-    client.on('close', () => {
-      this.clients.delete(client);
-      this.logger.log('Client disconnected');
-    });
+    // 구독 응답 메시지 무시
+    if ('event' in rawData && rawData.event === 'subscribe') {
+      return null;
+    }
+
+    // 실제 데이터 처리
+    if ('data' in rawData && rawData.data.length > 0) {
+      const formattedData: ParseMessageDataType = {
+        exchange: EXCHANGE_NAME.OKX,
+        symbol: rawData.data[0].instId,
+        currentPrice: rawData.data[0].last,
+        // XXX : changeRate 계산 필요
+        changeRate: '',
+        tradeVolume: rawData.data[0].vol24h,
+      };
+      console.log('formattedData: ', formattedData);
+      return formattedData;
+    }
+
+    return null;
   }
 }
