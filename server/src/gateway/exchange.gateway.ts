@@ -5,9 +5,9 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, WebSocket } from 'ws';
-import { UpbitWebsocketService } from '../exchange/upbit/upbit-ws.service';
-import { BinanceWebsocketService } from '../exchange/binance/binance-ws.service';
-import { BithumbWebsocketService } from '../exchange/bithumb/bithumb-ws.service';
+import { UpbitWebsocketService } from '../collector/exchange/upbit/upbit-ws.service';
+import { BinanceWebsocketService } from '../collector/exchange/binance/binance-ws.service';
+import { BithumbWebsocketService } from '../collector/exchange/bithumb/bithumb-ws.service';
 
 @WebSocketGateway({
   path: '/exchange',
