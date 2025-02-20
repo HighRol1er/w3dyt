@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { WEBSOCKET_ENDPOINTS, API_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
 import { bithumbMarketData } from 'scripts/market/bithumb-market-data';
 import { BaseWebsocketService } from '../base/base-ws.service';
-import { formatChangeRate } from 'src/common/utils/number.util';
+import { formatChangeRate } from 'src/utils/number.util';
 import {
   BithumbSubscribeMessageType,
   ParseMessageTickerDataType,

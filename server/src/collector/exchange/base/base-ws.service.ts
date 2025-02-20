@@ -4,6 +4,16 @@ import { WEBSOCKET_CONFIG } from 'src/common/constants';
 import { SubscribeMessageType, ParseMessageTickerDataType } from 'src/types/exchange-ws';
 import { RedisService } from 'src/redis/redis.service';
 import axios from 'axios';
+
+export interface TickerPair {
+  baseAsset: string; // 실제 거래되는 토큰 (BTC, ETH, XRP, DOGE, SOL, ADA, APE, 등)
+  quoteAsset: string; // 가격의 기준이 되는 토큰 (KRW, USDT, USDC, BTC 등)
+}
+
+export function createTickerKey(exchange: string, baseAsset: string, quoteAsset: string): string {
+  return `${exchange}-${baseAsset}-${quoteAsset}`;
+}
+
 export abstract class BaseWebsocketService implements OnModuleInit {
   protected ws: WebSocket;
   protected clients: Set<WebSocket> = new Set();
@@ -95,11 +105,30 @@ export abstract class BaseWebsocketService implements OnModuleInit {
     }
   }
 
-  /************************
-   *  API 커넥션 관련  *
-   *************************/
+  /********************
+   *   API 커넥션 관련   *
+   ********************/
 
-  protected abstract fetchAllMarketData(): Promise<any>;
+  protected marketTickers: string[] = [];
+  protected marketPairs: TickerPair[] = [];
+
+  abstract fetchAllMarketData(): Promise<any>;
+  abstract parseMarketData(market: string): TickerPair;
+
+  getMarketCodes(): string[] {
+    return this.marketTickers;
+  }
+
+  getMarketPairs(): TickerPair[] {
+    return this.marketPairs;
+  }
+
+  // Redis 키 형식으로 변환된 마켓 코드 가져오기
+  getRedisKeys(): string[] {
+    return this.marketPairs.map(({ baseAsset, quoteAsset }) =>
+      createTickerKey(this.exchangeName, baseAsset, quoteAsset),
+    );
+  }
 }
 
 // async onModuleInit() {

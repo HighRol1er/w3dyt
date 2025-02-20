@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME, API_ENDPOINTS } from 'src/common/constants';
 import { upbitMarketData } from 'scripts/market/upbit-market-data';
 import { BaseWebsocketService } from '../base/base-ws.service';
-import { formatChangeRate } from 'src/common/utils/number.util';
+import { formatChangeRate } from 'src/utils/number.util';
 import {
   UpbitSubscribeMessageType,
   ParseMessageTickerDataType,

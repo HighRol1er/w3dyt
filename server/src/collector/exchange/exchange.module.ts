@@ -7,6 +7,7 @@ import { KrakenWebsocketService } from './kraken/kraken-ws.service';
 import { CoinbaseWebsocketService } from './coinbase/coinbase-ws.service';
 // import { BybitWebsocketService } from './bybit/bybit-ws.service';
 import { RedisService } from 'src/redis/redis.service';
+
 @Module({
   imports: [],
   providers: [
