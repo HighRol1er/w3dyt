@@ -7,13 +7,13 @@ import {
   ParseMessageTickerDataType,
   KrakenRawDataType,
 } from 'src/types/exchange-ws';
-
+import { RedisService } from 'src/redis/redis.service';
 @Injectable()
 export class KrakenWebsocketService extends BaseWebsocketService {
   protected readonly endpoint = WEBSOCKET_ENDPOINTS.KRAKEN;
 
-  constructor() {
-    super('Kraken');
+  constructor(redisService: RedisService) {
+    super('Kraken', redisService);
   }
 
   protected getSubscribeMessage(): KrakenSubscribeMessageType {

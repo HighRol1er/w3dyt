@@ -23,7 +23,8 @@ export class RedisService implements OnModuleInit {
     } catch (error) {
       console.error('Redis connection failed:', error);
       // 개발 환경에서는 Redis 연결 실패를 허용
-      if (this.configService.get('NODE.ENV') === 'production') {
+      if (this.configService.get('NODE_ENV') !== 'development') {
+        console.log('Redis is in development mode');
         throw error;
       }
     }

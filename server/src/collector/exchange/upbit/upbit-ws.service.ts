@@ -8,12 +8,13 @@ import {
   ParseMessageTickerDataType,
   UpbitRawDataType,
 } from 'src/types/exchange-ws';
+import { RedisService } from 'src/redis/redis.service';
 @Injectable()
 export class UpbitWebsocketService extends BaseWebsocketService {
   protected readonly endpoint = WEBSOCKET_ENDPOINTS.UPBIT;
 
-  constructor() {
-    super('Upbit');
+  constructor(redisService: RedisService) {
+    super('Upbit', redisService);
   }
   // NOTE: 처음 스냅샷 이후 실시간 데이터 들어옴
   protected getSubscribeMessage(): UpbitSubscribeMessageType {

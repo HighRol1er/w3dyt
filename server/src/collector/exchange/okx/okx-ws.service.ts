@@ -8,13 +8,13 @@ import {
   OKXRawDataType,
   OKXSubscribeResponse,
 } from 'src/types/exchange-ws';
-
+import { RedisService } from 'src/redis/redis.service';
 @Injectable()
 export class OKXWebsocketService extends BaseWebsocketService {
   protected readonly endpoint = WEBSOCKET_ENDPOINTS.OKX;
 
-  constructor() {
-    super('OKX');
+  constructor(redisService: RedisService) {
+    super('OKX', redisService);
   }
 
   protected getSubscribeMessage(): OKXSubscribeMessageType {

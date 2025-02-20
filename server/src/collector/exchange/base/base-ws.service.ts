@@ -2,6 +2,7 @@ import { OnModuleInit, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
 import { WEBSOCKET_CONFIG } from 'src/common/constants';
 import { SubscribeMessageType, ParseMessageTickerDataType } from 'src/types/exchange-ws';
+import { RedisService } from 'src/redis/redis.service';
 export abstract class BaseWebsocketService implements OnModuleInit {
   protected ws: WebSocket;
   protected clients: Set<WebSocket> = new Set();
@@ -11,7 +12,10 @@ export abstract class BaseWebsocketService implements OnModuleInit {
   protected readonly logger: Logger;
   protected abstract readonly endpoint: string;
 
-  constructor(protected readonly exchangeName: string) {
+  constructor(
+    protected readonly exchangeName: string,
+    protected readonly redisService: RedisService,
+  ) {
     this.logger = new Logger(`${exchangeName}WebsocketService`);
   }
 

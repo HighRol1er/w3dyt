@@ -8,13 +8,13 @@ import {
   ParseMessageTickerDataType,
   BithumbRawDataType,
 } from 'src/types/exchange-ws';
-
+import { RedisService } from 'src/redis/redis.service';
 @Injectable()
 export class BithumbWebsocketService extends BaseWebsocketService {
   protected readonly endpoint = WEBSOCKET_ENDPOINTS.BITHUMB;
 
-  constructor() {
-    super('Bithumb');
+  constructor(redisService: RedisService) {
+    super('Bithumb', redisService);
   }
 
   protected getSubscribeMessage(): BithumbSubscribeMessageType {

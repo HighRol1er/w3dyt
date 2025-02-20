@@ -7,12 +7,14 @@ import {
   BinanceSubscribeMessageType,
   ParseMessageTickerDataType,
 } from 'src/types/exchange-ws';
+import { RedisService } from 'src/redis/redis.service';
+
 @Injectable()
 export class BinanceWebsocketService extends BaseWebsocketService {
   protected readonly endpoint = WEBSOCKET_ENDPOINTS.BINANCE;
 
-  constructor() {
-    super('Binance');
+  constructor(redisService: RedisService) {
+    super('Binance', redisService);
   }
 
   protected getSubscribeMessage(): BinanceSubscribeMessageType {

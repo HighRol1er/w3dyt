@@ -7,13 +7,13 @@ import {
   CoinbaseSubscribeMessageType,
   ParseMessageTickerDataType,
 } from 'src/types/exchange-ws';
-
+import { RedisService } from 'src/redis/redis.service';
 @Injectable()
 export class CoinbaseWebsocketService extends BaseWebsocketService {
   protected readonly endpoint = WEBSOCKET_ENDPOINTS.COINBASE;
 
-  constructor() {
-    super('Coinbase');
+  constructor(redisService: RedisService) {
+    super('Coinbase', redisService);
   }
 
   protected getSubscribeMessage(): CoinbaseSubscribeMessageType {

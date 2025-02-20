@@ -5,27 +5,29 @@ import { BithumbWebsocketService } from './bithumb/bithumb-ws.service';
 import { OKXWebsocketService } from './okx/okx-ws.service';
 import { KrakenWebsocketService } from './kraken/kraken-ws.service';
 import { CoinbaseWebsocketService } from './coinbase/coinbase-ws.service';
-import { BybitWebsocketService } from './bybit/bybit-ws.service';
-
+// import { BybitWebsocketService } from './bybit/bybit-ws.service';
+import { RedisService } from 'src/redis/redis.service';
 @Module({
   imports: [],
   providers: [
+    RedisService,
     UpbitWebsocketService,
     BinanceWebsocketService,
     BithumbWebsocketService,
     OKXWebsocketService,
     KrakenWebsocketService,
     CoinbaseWebsocketService,
-    BybitWebsocketService,
+    // BybitWebsocketService,
   ],
   exports: [
+    RedisService,
     UpbitWebsocketService,
     BinanceWebsocketService,
     BithumbWebsocketService,
     OKXWebsocketService,
     KrakenWebsocketService,
     CoinbaseWebsocketService,
-    BybitWebsocketService,
+    // BybitWebsocketService,
   ],
 })
 export class ExchangeModule {}
