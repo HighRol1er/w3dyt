@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
+import { WEBSOCKET_ENDPOINTS, API_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
 import { okxMarketData } from 'scripts/market/okx-market-data';
 import { BaseWebsocketService } from '../base/base-ws.service';
 import {
@@ -11,7 +11,8 @@ import {
 import { RedisService } from 'src/redis/redis.service';
 @Injectable()
 export class OKXWebsocketService extends BaseWebsocketService {
-  protected readonly endpoint = WEBSOCKET_ENDPOINTS.OKX;
+  protected readonly wsEndpoint = WEBSOCKET_ENDPOINTS.OKX;
+  protected readonly apiEndpoint = API_ENDPOINTS.OKX;
 
   constructor(redisService: RedisService) {
     super('OKX', redisService);
@@ -46,7 +47,10 @@ export class OKXWebsocketService extends BaseWebsocketService {
         changeRate: '',
         tradeVolume: rawData.data[0].vol24h,
       };
-      // console.log('formattedData: ', formattedData);
+
+      // NOTE: 데이터 확인용 console.log
+      // console.log('rawData: ', rawData);
+      // console.log('tickerData: ', tickerData);
       return tickerData;
     }
 

@@ -2,7 +2,7 @@ import { Module, Global } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import * as schema from './schema/upbit.schema';
+import * as schema from './schema/exchange';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 export type DrizzleClient = NodePgDatabase<typeof schema>;

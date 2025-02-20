@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
+import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME, API_ENDPOINTS } from 'src/common/constants';
 import { upbitMarketData } from 'scripts/market/upbit-market-data';
 import { BaseWebsocketService } from '../base/base-ws.service';
 import { formatChangeRate } from 'src/common/utils/number.util';
@@ -11,7 +11,8 @@ import {
 import { RedisService } from 'src/redis/redis.service';
 @Injectable()
 export class UpbitWebsocketService extends BaseWebsocketService {
-  protected readonly endpoint = WEBSOCKET_ENDPOINTS.UPBIT;
+  protected readonly wsEndpoint = WEBSOCKET_ENDPOINTS.UPBIT;
+  protected readonly apiEndpoint = API_ENDPOINTS.UPBIT;
 
   constructor(redisService: RedisService) {
     super('Upbit', redisService);

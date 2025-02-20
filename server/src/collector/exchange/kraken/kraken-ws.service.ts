@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
+import { WEBSOCKET_ENDPOINTS, API_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
 import { krakenMarketData } from 'scripts/market/kraken-market-data';
 import { BaseWebsocketService } from '../base/base-ws.service';
 import {
@@ -10,7 +10,8 @@ import {
 import { RedisService } from 'src/redis/redis.service';
 @Injectable()
 export class KrakenWebsocketService extends BaseWebsocketService {
-  protected readonly endpoint = WEBSOCKET_ENDPOINTS.KRAKEN;
+  protected readonly wsEndpoint = WEBSOCKET_ENDPOINTS.KRAKEN;
+  protected readonly apiEndpoint = API_ENDPOINTS.KRAKEN;
 
   constructor(redisService: RedisService) {
     super('Kraken', redisService);

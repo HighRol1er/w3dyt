@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
+import { WEBSOCKET_ENDPOINTS, API_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
 import { bithumbMarketData } from 'scripts/market/bithumb-market-data';
 import { BaseWebsocketService } from '../base/base-ws.service';
 import { formatChangeRate } from 'src/common/utils/number.util';
@@ -11,7 +11,8 @@ import {
 import { RedisService } from 'src/redis/redis.service';
 @Injectable()
 export class BithumbWebsocketService extends BaseWebsocketService {
-  protected readonly endpoint = WEBSOCKET_ENDPOINTS.BITHUMB;
+  protected readonly wsEndpoint = WEBSOCKET_ENDPOINTS.BITHUMB;
+  protected readonly apiEndpoint = API_ENDPOINTS.BITHUMB;
 
   constructor(redisService: RedisService) {
     super('Bithumb', redisService);

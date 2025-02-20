@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios, { AxiosRequestConfig } from 'axios';
-import { API_ENDPOINTS } from '../../common/constants/api-endpoint.constants';
+import { API_ENDPOINTS } from 'src/common/constants';
 
 export interface CoinbaseTicker {
   product_id: string;

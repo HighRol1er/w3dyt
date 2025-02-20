@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
+import { WEBSOCKET_ENDPOINTS, API_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
 import { coinbaseMarketData } from 'scripts/market/coinbase-market-data';
 import { BaseWebsocketService } from '../base/base-ws.service';
 import {
@@ -10,7 +10,8 @@ import {
 import { RedisService } from 'src/redis/redis.service';
 @Injectable()
 export class CoinbaseWebsocketService extends BaseWebsocketService {
-  protected readonly endpoint = WEBSOCKET_ENDPOINTS.COINBASE;
+  protected readonly wsEndpoint = WEBSOCKET_ENDPOINTS.COINBASE;
+  protected readonly apiEndpoint = API_ENDPOINTS.COINBASE;
 
   constructor(redisService: RedisService) {
     super('Coinbase', redisService);
