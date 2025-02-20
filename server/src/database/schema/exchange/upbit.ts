@@ -1,5 +1,6 @@
 import { pgTable, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
 export const upbitTickers = pgTable('exchange_upbit', {
   currency_pair: varchar('currency_pair', { length: 20 }).primaryKey(), // KRW-BTC
@@ -11,5 +12,14 @@ export const upbitTickers = pgTable('exchange_upbit', {
   updated_at: timestamp('updated_at').notNull().defaultNow(),
 });
 
-export const upbitTickersSelectSchema = createSelectSchema(upbitTickers);
-export const upbitTickersInsertSchema = createInsertSchema(upbitTickers);
+const upbitTickersSelectSchema = createSelectSchema(upbitTickers);
+const upbitTickersInsertSchema = createInsertSchema(upbitTickers, {
+  currency_pair: z.string().min(1),
+  korean_name: z.string().optional(),
+  english_name: z.string().optional(),
+  base_asset: z.string().min(1),
+  quote_asset: z.string().min(1),
+});
+
+export type UpbitTickerSelect = z.infer<typeof upbitTickersSelectSchema>;
+export type UpbitTickerInsert = z.infer<typeof upbitTickersInsertSchema>;

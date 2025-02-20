@@ -1,5 +1,6 @@
 import { pgTable, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
 export const bithumbTickers = pgTable('exchange_bithumb', {
   currency_pair: varchar('currency_pair', { length: 20 }).primaryKey(), // KRW-BTC
@@ -12,4 +13,13 @@ export const bithumbTickers = pgTable('exchange_bithumb', {
 });
 
 export const bithumbTickersSelectSchema = createSelectSchema(bithumbTickers);
-export const bithumbTickersInsertSchema = createInsertSchema(bithumbTickers);
+const bithumbTickersInsertSchema = createInsertSchema(bithumbTickers, {
+  currency_pair: z.string().min(1),
+  korean_name: z.string().optional(),
+  english_name: z.string().optional(),
+  base_asset: z.string().min(1),
+  quote_asset: z.string().min(1),
+});
+
+export type BithumbTickerSelect = z.infer<typeof bithumbTickersSelectSchema>;
+export type BithumbTickerInsert = z.infer<typeof bithumbTickersInsertSchema>;
