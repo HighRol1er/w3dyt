@@ -22,6 +22,7 @@ export class RedisService implements OnModuleInit {
       await this.client.connect();
     } catch (error) {
       console.error('Redis connection failed:', error);
+      // 개발 환경에서는 Redis 연결 실패를 허용
       if (this.configService.get('NODE.ENV') === 'production') {
         throw error;
       }

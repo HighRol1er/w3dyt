@@ -1,0 +1,29 @@
+# Application
+PORT=3010
+NODE_ENV=development
+
+# Client URLs
+CLIENT_URL_DEV=http://localhost:3000
+CLIENT_URL_PROD=https://your-production-domain.com
+
+# Database
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=w3dyt
+
+# Optional: Database connection settings
+POSTGRES_SSL=false
+POSTGRES_MAX_CONNECTIONS=100
+POSTGRES_IDLE_TIMEOUT=30000
+
+# Database URL
+DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB} 
+
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# CORS
+CORS_ORIGIN=http://localhost:3000

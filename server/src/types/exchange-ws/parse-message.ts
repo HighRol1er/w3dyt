@@ -1,4 +1,4 @@
-export type ParseMessageDataType = {
+export type ParseMessageTickerDataType = {
   exchange: string;
   symbol: string;
   currentPrice: string | number;

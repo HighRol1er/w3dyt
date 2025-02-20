@@ -4,10 +4,10 @@ import { okxMarketData } from 'scripts/market/okx-market-data';
 import { BaseWebsocketService } from '../base/base-ws.service';
 import {
   OKXSubscribeMessageType,
-  ParseMessageDataType,
+  ParseMessageTickerDataType,
   OKXRawDataType,
   OKXSubscribeResponse,
-} from 'src/types/websocket';
+} from 'src/types/exchange-ws';
 
 @Injectable()
 export class OKXWebsocketService extends BaseWebsocketService {
@@ -27,7 +27,7 @@ export class OKXWebsocketService extends BaseWebsocketService {
     };
   }
 
-  protected parseMessageData(data: Buffer): ParseMessageDataType {
+  protected parseMessageData(data: Buffer): ParseMessageTickerDataType {
     const rawData: OKXRawDataType | OKXSubscribeResponse = JSON.parse(data.toString());
     // console.log('rawData: ', rawData);
 
@@ -38,7 +38,7 @@ export class OKXWebsocketService extends BaseWebsocketService {
 
     // 실제 데이터 처리
     if ('data' in rawData && rawData.data.length > 0) {
-      const formattedData: ParseMessageDataType = {
+      const tickerData: ParseMessageTickerDataType = {
         exchange: EXCHANGE_NAME.OKX,
         symbol: rawData.data[0].instId,
         currentPrice: rawData.data[0].last,
@@ -46,8 +46,8 @@ export class OKXWebsocketService extends BaseWebsocketService {
         changeRate: '',
         tradeVolume: rawData.data[0].vol24h,
       };
-      console.log('formattedData: ', formattedData);
-      return formattedData;
+      // console.log('formattedData: ', formattedData);
+      return tickerData;
     }
 
     return null;

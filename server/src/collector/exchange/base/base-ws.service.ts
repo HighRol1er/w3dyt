@@ -1,7 +1,7 @@
 import { OnModuleInit, Logger } from '@nestjs/common';
 import { WebSocket } from 'ws';
 import { WEBSOCKET_CONFIG } from 'src/common/constants';
-import { SubscribeMessageType, ParseMessageDataType } from 'src/types/websocket';
+import { SubscribeMessageType, ParseMessageTickerDataType } from 'src/types/exchange-ws';
 export abstract class BaseWebsocketService implements OnModuleInit {
   protected ws: WebSocket;
   protected clients: Set<WebSocket> = new Set();
@@ -15,13 +15,14 @@ export abstract class BaseWebsocketService implements OnModuleInit {
     this.logger = new Logger(`${exchangeName}WebsocketService`);
   }
 
-  onModuleInit() {
-    this.connect();
+  async onModuleInit() {
+    await this.connect();
   }
 
   protected abstract getSubscribeMessage(): SubscribeMessageType;
+  protected abstract parseMessageData(data: Buffer): ParseMessageTickerDataType;
+  // NOTE: TEST CODE
   // protected abstract getSubscribeMessage(): any;
-  protected abstract parseMessageData(data: Buffer): ParseMessageDataType;
   // protected abstract parseMessageData(data: Buffer): any;
 
   protected async connect() {
@@ -34,29 +35,20 @@ export abstract class BaseWebsocketService implements OnModuleInit {
     });
 
     this.ws.on('message', (data: Buffer) => {
-      const filteredData = this.parseMessageData(data);
-      if (filteredData) {
-        this.broadcastToClients(filteredData);
+      const tickerData = this.parseMessageData(data);
+      if (tickerData) {
+        this.broadcastToClients(tickerData);
       }
     });
 
     this.ws.on('close', () => {
       this.logger.warn(`Disconnected from ${this.exchangeName} WebSocket`);
-      if (this.reconnectAttempts < this.maxReconnectAttempts) {
-        this.logger.log(
-          `Reconnecting... Attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}`,
-        );
-        setTimeout(() => {
-          this.reconnectAttempts++;
-          this.connect();
-        }, this.reconnectDelay);
-      } else {
-        this.logger.error('Max reconnection attempts reached');
-      }
+      this.handleReconnect();
     });
 
     this.ws.on('error', error => {
       this.logger.error('WebSocket error:', error);
+      this.handleReconnect();
     });
   }
 
@@ -76,5 +68,19 @@ export abstract class BaseWebsocketService implements OnModuleInit {
       this.clients.delete(client);
       this.logger.log(`${this.exchangeName} Client disconnected`);
     });
+  }
+
+  protected handleReconnect() {
+    if (this.reconnectAttempts < this.maxReconnectAttempts) {
+      this.logger.log(
+        `Reconnecting... Attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}`,
+      );
+      setTimeout(() => {
+        this.reconnectAttempts++;
+        this.connect();
+      }, this.reconnectDelay);
+    } else {
+      this.logger.error('Max reconnection attempts reached');
+    }
   }
 }

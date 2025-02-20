@@ -5,9 +5,9 @@ import { BaseWebsocketService } from '../base/base-ws.service';
 import { formatChangeRate } from 'src/common/utils/number.util';
 import {
   BithumbSubscribeMessageType,
-  ParseMessageDataType,
+  ParseMessageTickerDataType,
   BithumbRawDataType,
-} from 'src/types/websocket';
+} from 'src/types/exchange-ws';
 
 @Injectable()
 export class BithumbWebsocketService extends BaseWebsocketService {
@@ -28,10 +28,10 @@ export class BithumbWebsocketService extends BaseWebsocketService {
     ];
   }
 
-  protected parseMessageData(data: Buffer): ParseMessageDataType {
+  protected parseMessageData(data: Buffer): ParseMessageTickerDataType {
     const rawData: BithumbRawDataType = JSON.parse(data.toString());
 
-    const formattedData: ParseMessageDataType = {
+    const tickerData: ParseMessageTickerDataType = {
       exchange: EXCHANGE_NAME.BITHUMB,
       symbol: rawData.cd,
       currentPrice: rawData.tp, // number
@@ -41,8 +41,8 @@ export class BithumbWebsocketService extends BaseWebsocketService {
 
     // NOTE: 데이터 확인용 console.log
     // console.log('rawData: ', rawData);
-    console.log('formattedData: ', formattedData);
+    // console.log('formattedData: ', formattedData);
 
-    return formattedData;
+    return tickerData;
   }
 }

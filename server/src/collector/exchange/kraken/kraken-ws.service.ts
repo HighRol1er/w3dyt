@@ -4,9 +4,9 @@ import { krakenMarketData } from 'scripts/market/kraken-market-data';
 import { BaseWebsocketService } from '../base/base-ws.service';
 import {
   KrakenSubscribeMessageType,
-  ParseMessageDataType,
+  ParseMessageTickerDataType,
   KrakenRawDataType,
-} from 'src/types/websocket';
+} from 'src/types/exchange-ws';
 
 @Injectable()
 export class KrakenWebsocketService extends BaseWebsocketService {
@@ -26,7 +26,7 @@ export class KrakenWebsocketService extends BaseWebsocketService {
     };
   }
 
-  protected parseMessageData(data: Buffer): ParseMessageDataType {
+  protected parseMessageData(data: Buffer): ParseMessageTickerDataType {
     const rawData: KrakenRawDataType = JSON.parse(data.toString());
 
     // 시스템 메시지나 다른 채널 메시지 무시
@@ -34,7 +34,7 @@ export class KrakenWebsocketService extends BaseWebsocketService {
       return null;
     }
 
-    const formattedData: ParseMessageDataType = {
+    const tickerData: ParseMessageTickerDataType = {
       exchange: EXCHANGE_NAME.KRAKEN,
       symbol: rawData.data[0].symbol,
       currentPrice: rawData.data[0].last,
@@ -44,8 +44,8 @@ export class KrakenWebsocketService extends BaseWebsocketService {
 
     // NOTE: 데이터 확인용 콘솔 출력
     // console.log('rawData: ', rawData);
-    console.log('formattedData: ', formattedData);
+    // console.log('formattedData: ', formattedData);
 
-    return formattedData;
+    return tickerData;
   }
 }

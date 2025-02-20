@@ -5,8 +5,8 @@ import { BaseWebsocketService } from '../base/base-ws.service';
 import {
   CoinbaseRawDataType,
   CoinbaseSubscribeMessageType,
-  ParseMessageDataType,
-} from 'src/types/websocket';
+  ParseMessageTickerDataType,
+} from 'src/types/exchange-ws';
 
 @Injectable()
 export class CoinbaseWebsocketService extends BaseWebsocketService {
@@ -24,7 +24,7 @@ export class CoinbaseWebsocketService extends BaseWebsocketService {
     };
   }
 
-  protected parseMessageData(data: Buffer): ParseMessageDataType {
+  protected parseMessageData(data: Buffer): ParseMessageTickerDataType {
     const rawData: CoinbaseRawDataType = JSON.parse(data.toString());
 
     // Type guard
@@ -32,7 +32,7 @@ export class CoinbaseWebsocketService extends BaseWebsocketService {
       return null;
     }
 
-    const formattedData: ParseMessageDataType = {
+    const tickerData: ParseMessageTickerDataType = {
       exchange: EXCHANGE_NAME.COINBASE,
       symbol: rawData.product_id,
       currentPrice: parseFloat(rawData.price),
@@ -43,8 +43,8 @@ export class CoinbaseWebsocketService extends BaseWebsocketService {
     };
     // NOTE: 데이터 확인용 콘솔 출력
     // console.log('rawData: ', rawData);
-    console.log('formattedData: ', formattedData);
+    // console.log('formattedData: ', formattedData);
 
-    return formattedData;
+    return tickerData;
   }
 }

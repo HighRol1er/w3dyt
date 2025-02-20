@@ -5,8 +5,8 @@ import { BaseWebsocketService } from '../base/base-ws.service';
 import {
   BinanceRawDataType,
   BinanceSubscribeMessageType,
-  ParseMessageDataType,
-} from 'src/types/websocket';
+  ParseMessageTickerDataType,
+} from 'src/types/exchange-ws';
 @Injectable()
 export class BinanceWebsocketService extends BaseWebsocketService {
   protected readonly endpoint = WEBSOCKET_ENDPOINTS.BINANCE;
@@ -23,10 +23,10 @@ export class BinanceWebsocketService extends BaseWebsocketService {
     };
   }
 
-  protected parseMessageData(data: Buffer): ParseMessageDataType {
+  protected parseMessageData(data: Buffer): ParseMessageTickerDataType {
     const rawData: BinanceRawDataType = JSON.parse(data.toString());
 
-    const formattedData = {
+    const tickerData: ParseMessageTickerDataType = {
       exchange: EXCHANGE_NAME.BINANCE,
       symbol: rawData.s,
       currentPrice: rawData.c,
@@ -36,8 +36,8 @@ export class BinanceWebsocketService extends BaseWebsocketService {
 
     // NOTE: 데이터 확인용 console.log
     // console.log('rawData: ', rawData);
-    console.log('formattedData: ', formattedData);
+    // console.log('tickerData: ', tickerData);
 
-    return formattedData;
+    return tickerData;
   }
 }
