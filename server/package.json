@@ -20,6 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:generate": "drizzle-kit generate:pg",
     "db:push": "drizzle-kit push:pg",
+    "db:migrate": "drizzle-kit migrate",
+    "db:deploy": "drizzle-kit push",
     "market:upbit": "ts-node scripts/upbit-market-fetcher.ts",
     "market:binance": "ts-node scripts/binance-market-fetcher.ts",
     "market:bithumb": "ts-node scripts/bithumb-market-fetcher.ts",

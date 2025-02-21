@@ -16,8 +16,8 @@ export abstract class BaseWebSocketService {
     this.logger = new Logger(`${exchangeName}WebSocketService`);
   }
 
-  protected abstract subscribe(): void; // 구독 메세지 전송 + 구독 메세지 파싱 해야함
-  protected abstract parseMessageData(data: Buffer): ParseMessageTickerDataType;
+  protected abstract subscribe(): Promise<void>;
+  protected abstract parseMessageData(data: Buffer): Promise<ParseMessageTickerDataType | null>;
   // NOTE: TEST CODE
   // protected abstract getSubscribeMessage(): any;
   // protected abstract parseMessageData(data: Buffer): any;

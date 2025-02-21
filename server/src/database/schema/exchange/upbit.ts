@@ -2,7 +2,7 @@ import { pgTable, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
-export const upbitTickers = pgTable('exchange_upbit', {
+export const upbitTickersSchema = pgTable('exchange_upbit', {
   currency_pair: varchar('currency_pair', { length: 20 }).primaryKey(), // KRW-BTC
   korean_name: varchar('korean_name', { length: 20 }).notNull(), // 비트코인
   english_name: varchar('english_name', { length: 50 }).notNull(), // Bitcoin
@@ -12,8 +12,8 @@ export const upbitTickers = pgTable('exchange_upbit', {
   updated_at: timestamp('updated_at').notNull().defaultNow(),
 });
 
-const upbitTickersSelectSchema = createSelectSchema(upbitTickers);
-const upbitTickersInsertSchema = createInsertSchema(upbitTickers, {
+const upbitTickersSelectSchema = createSelectSchema(upbitTickersSchema);
+const upbitTickersInsertSchema = createInsertSchema(upbitTickersSchema, {
   currency_pair: z.string().min(1),
   korean_name: z.string().optional(),
   english_name: z.string().optional(),

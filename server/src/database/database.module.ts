@@ -3,9 +3,18 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from './schema/exchange';
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+// import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
-export type DrizzleClient = NodePgDatabase<typeof schema>;
+// export type DrizzleClient = NodePgDatabase<typeof schema>;
+export const DrizzleClient = drizzle({
+  connection: {
+    host: process.env.POSTGRES_HOST,
+    port: parseInt(process.env.POSTGRES_PORT!),
+    user: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DB,
+  },
+});
 
 @Global()
 @Module({

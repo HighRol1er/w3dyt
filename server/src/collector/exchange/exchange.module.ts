@@ -25,6 +25,7 @@ import { UpbitModule } from './upbit/upbit.module';
   ],
   exports: [
     RedisService,
+    UpbitModule,
     // UpbitService,
     // // UpbitWebsocketService,
     // BinanceWebsocketService,

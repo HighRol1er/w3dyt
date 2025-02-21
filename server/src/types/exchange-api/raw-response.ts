@@ -21,10 +21,23 @@ export interface MarketCaution {
   CONCENTRATION_OF_SMALL_ACCOUNTS: boolean;
 }
 
-export type ExchangeDataResponseType = UpbitDataResponseType;
-// | BinanceRawDataType
-// | BithumbRawDataType
-// | BybitRawDataType
-// | KrakenRawDataType
-// | OKXRawDataType
-// | CoinbaseRawDataType;
+/**
+ * Bithumb raw-data type
+ */
+export interface BithumbDataResponseType {
+  symbol: string;
+  price: string;
+}
+
+/**
+ * Binance raw-data type
+ */
+export interface BinanceDataResponseType {
+  symbol: string;
+  price: string;
+}
+
+export type ExchangeDataResponseType =
+  | UpbitDataResponseType
+  | BithumbDataResponseType
+  | BinanceDataResponseType;
