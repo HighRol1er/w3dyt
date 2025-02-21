@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { BaseApiService } from '../base/base-api.service';
 import { API_ENDPOINTS } from 'src/common/constants';
-import { AssetPair } from 'src/utils/parse-exchange-data';
+import { UpbitDataResponseType } from 'src/types/exchange-api';
+import { AssetPair } from 'src/collector/exchange/base/base-api.service';
 
 @Injectable()
 export class UpbitApiService extends BaseApiService {
@@ -11,15 +12,20 @@ export class UpbitApiService extends BaseApiService {
     super('Upbit');
   }
 
-  async fetchAllMarketData(): Promise<void> {
-    await super.fetchAllMarketData();
+  protected parseExchangeData(data: UpbitDataResponseType[]) {
+    return data.filter(ticker => ticker.market.startsWith('KRW-')).map(ticker => ticker.market);
   }
 
-  fetchMarketCodes(): string[] {
-    return this.tickerList;
+  protected parseTradingPair(symbol: string): AssetPair {
+    const [quoteToken, baseToken] = symbol.split('-');
+    return { baseAsset: baseToken, quoteAsset: quoteToken };
   }
 
-  fetchMarketPairs(): AssetPair[] {
-    return this.assetPairs;
-  }
+  // fetchMarketCodes(): string[] {
+  //   return this.tickerList;
+  // }
+
+  // fetchMarketPairs(): AssetPair[] {
+  //   return this.assetPairs;
+  // }
 }

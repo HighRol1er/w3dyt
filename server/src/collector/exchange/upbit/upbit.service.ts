@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 // import { WebSocketService } from '../base/sample-base-ws.service';
 import { UpbitWebSocketService } from './upbit-ws.service';
 import { UpbitApiService } from './upbit-api.service';
-
+import { AssetPair } from '../base/base-api.service';
 @Injectable()
 export class UpbitService implements OnModuleInit {
   constructor(
@@ -15,11 +15,11 @@ export class UpbitService implements OnModuleInit {
     this.webSocketService.connectWebSocket();
   }
 
-  // getMarketCodes(): string[] {
-  //   return this.marketDataService.getMarketCodes();
-  // }
+  fetchTickerList(): string[] {
+    return this.upbitApiService.fetchTickerList();
+  }
 
-  // getMarketPairs() {
-  //   return this.marketDataService.getMarketPairs();
-  // }
+  fetchAssetPairs(): AssetPair[] {
+    return this.upbitApiService.fetchAssetPairs();
+  }
 }
