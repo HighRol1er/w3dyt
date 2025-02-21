@@ -1,17 +1,17 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 // import { WebSocketService } from '../base/sample-base-ws.service';
 import { UpbitWebSocketService } from './upbit-ws.service';
-// import { MarketDataService } from '../base/base-api.service';
+import { UpbitApiService } from './upbit-api.service';
 
 @Injectable()
 export class UpbitService implements OnModuleInit {
   constructor(
     private readonly webSocketService: UpbitWebSocketService,
-    // private readonly marketDataService: MarketDataService,
+    private readonly upbitApiService: UpbitApiService,
   ) {}
 
   async onModuleInit() {
-    // await this.marketDataService.fetchAllMarketData();
+    await this.upbitApiService.fetchAllMarketData();
     this.webSocketService.connectWebSocket();
   }
 

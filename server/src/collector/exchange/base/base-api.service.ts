@@ -1,42 +1,40 @@
 import { Logger } from '@nestjs/common';
 import axios from 'axios';
-// import { TickerPair } from 'src/types/exchange-ws';
-
-export interface TickerPair {
-  baseAsset: string;
-  quoteAsset: string;
-}
+import { parseUpbitData, AssetPair, parseUpbitMarket } from 'src/utils/parse-exchange-data';
 
 export abstract class BaseApiService {
-  protected marketTickers: string[] = [];
-  protected marketPairs: TickerPair[] = [];
+  protected tickerList: string[] = []; // "BTC-KRW", "ETH-KRW", "XRP-KRW"
+  protected assetPairs: AssetPair[] = []; // { baseAsset: "BTC", quoteAsset: "KRW" }, { baseAsset: "ETH", quoteAsset: "KRW" }, { baseAsset: "XRP", quoteAsset: "KRW" }
   protected readonly logger: Logger;
   protected abstract readonly apiEndpoint: string;
 
   constructor(protected readonly exchangeName: string) {
-    this.logger = new Logger(`${exchangeName}MarketDataService`);
+    this.logger = new Logger(`${exchangeName}ApiService`);
   }
 
   async fetchAllMarketData(): Promise<void> {
     try {
       const response = await axios.get(this.apiEndpoint);
-      this.marketPairs = this.parseMarketData(response.data);
-      this.marketTickers = this.marketPairs.map(
-        ({ baseAsset, quoteAsset }) => `${baseAsset}-${quoteAsset}`,
-      );
+      // EX) // KRW 마켓만 필터링
+      this.tickerList = parseUpbitData(response.data);
+      // 티커 페어로 나눔
+      this.assetPairs = this.tickerList.map(symbol => parseUpbitMarket(symbol));
+
+      console.log('tickerList', this.tickerList);
+      console.log('assetPairs', this.assetPairs);
       this.logger.log(`Fetched market data for ${this.exchangeName}`);
     } catch (error) {
       this.logger.error(`Error fetching market data for ${this.exchangeName}`, error);
     }
   }
 
-  protected abstract parseMarketData(data: any): TickerPair[];
+  // protected abstract parseMarketData(data: any);
 
-  getMarketCodes(): string[] {
-    return this.marketTickers;
+  fetchMarketCodes(): string[] {
+    return this.tickerList;
   }
 
-  getMarketPairs(): TickerPair[] {
-    return this.marketPairs;
+  fetchMarketPairs(): AssetPair[] {
+    return this.assetPairs;
   }
 }
