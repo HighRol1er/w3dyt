@@ -1,24 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
+import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME, API_ENDPOINTS } from 'src/common/constants';
 import { upbitMarketData } from 'scripts/market/upbit-market-data';
-import { BaseWebSocketService } from '../base/base-ws.service';
+import { BaseWebsocketService } from '../base/z-legacy-base-ws.service';
 import { formatChangeRate } from 'src/utils/number.util';
 import {
   UpbitSubscribeMessageType,
   ParseMessageTickerDataType,
   UpbitRawDataType,
 } from 'src/types/exchange-ws';
-
+import { RedisService } from 'src/redis/redis.service';
 @Injectable()
-export class UpbitWebSocketService extends BaseWebSocketService {
+export class UpbitWebsocketService extends BaseWebsocketService {
   protected readonly wsEndpoint = WEBSOCKET_ENDPOINTS.UPBIT;
+  protected readonly apiEndpoint = API_ENDPOINTS.UPBIT;
 
-  constructor() {
-    super('Upbit');
+  constructor(redisService: RedisService) {
+    super('Upbit', redisService);
   }
-
-  protected subscribe(): void {
-    const subscribeMessage: UpbitSubscribeMessageType = [
+  // NOTE: 처음 스냅샷 이후 실시간 데이터 들어옴
+  protected getSubscribeMessage(): UpbitSubscribeMessageType {
+    return [
       { ticket: 'test' },
       {
         type: 'ticker',
@@ -26,13 +27,13 @@ export class UpbitWebSocketService extends BaseWebSocketService {
       },
       { format: 'SIMPLE' },
     ];
-
-    this.ws.send(JSON.stringify(subscribeMessage));
   }
 
   protected parseMessageData(data: Buffer): ParseMessageTickerDataType {
     const rawData: UpbitRawDataType = JSON.parse(data.toString());
 
+    // XXX : 아마 currentPrice랑 tradeVolume 문자열로 바꿔서 소수점 처리 + 콤마 처리 필요할 듯
+    // 그리고 currentPrice에 대한 가격 SHIB같은 경우는 가격이 소수점이라서 가격 자리수마다 포메팅이 필요함 (util 함수로 만들어야함)
     const tickerData: ParseMessageTickerDataType = {
       exchange: EXCHANGE_NAME.UPBIT,
       symbol: rawData.cd,
@@ -40,7 +41,6 @@ export class UpbitWebSocketService extends BaseWebSocketService {
       changeRate: formatChangeRate(rawData.scr),
       tradeVolume: rawData.atp24h,
     };
-
     // NOTE: 데이터 확인용 console.log
     // console.log('rawData: ', rawData);
     // console.log('tickerData: ', tickerData);

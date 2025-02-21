@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { WEBSOCKET_ENDPOINTS, API_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
 import { coinbaseMarketData } from 'scripts/market/coinbase-market-data';
-import { BaseWebsocketService } from '../base/base-ws.service';
+import { BaseWebsocketService } from '../base/z-legacy-base-ws.service';
 import {
   CoinbaseRawDataType,
   CoinbaseSubscribeMessageType,
