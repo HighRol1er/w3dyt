@@ -17,28 +17,7 @@ export abstract class BaseHttpService {
   constructor(protected readonly exchangeName: string) {
     this.logger = new Logger(`${exchangeName}HttpService`);
   }
-  // async fetchAllMarketData() {
-  //   try {
-  //     const response = await axios.get<T[]>(this.apiEndpoint);
 
-  //     // 거래소별 데이터 파싱 로직은 자식 클래스에서 구현
-  //     this.rawData = response.data;
-  //     this.tickerList = this.parseExchangeData(response.data);
-  //     this.assetPairs = this.tickerList.map(symbol => this.parseTradingPair(symbol));
-
-  //     this.logger.log(`Fetched market data for ${this.exchangeName}`);
-
-  //     // NOTE: 데이터 확인용 console.log
-  //     // console.log('tickerList', this.tickerList);
-  //     // console.log('assetPairs', this.assetPairs);
-
-  //     // return response;
-  //   } catch (error) {
-  //     this.logger.error(`Error fetching market data for ${this.exchangeName}`, error);
-  //   }
-  // }
-
-  // XXX: 자식 클래스에서 구현 + void가 맞나?
   abstract fetchAllMarketData(): Promise<AxiosResponse<ExchangeDataResponseType[]>>;
   protected abstract parseExchangeData(data: ExchangeDataResponseType[]): string[];
 
@@ -52,9 +31,30 @@ export abstract class BaseHttpService {
     // console.log('tickerList', this.tickerList);
     return this.tickerList;
   }
-
+  // 애 굳이 안쓸꺼같은데?
   fetchAssetPairs(): AssetPair[] {
     // console.log('assetPairs', this.assetPairs);
     return this.assetPairs;
   }
 }
+
+// async fetchAllMarketData() {
+//   try {
+//     const response = await axios.get<T[]>(this.apiEndpoint);
+
+//     // 거래소별 데이터 파싱 로직은 자식 클래스에서 구현
+//     this.rawData = response.data;
+//     this.tickerList = this.parseExchangeData(response.data);
+//     this.assetPairs = this.tickerList.map(symbol => this.parseTradingPair(symbol));
+
+//     this.logger.log(`Fetched market data for ${this.exchangeName}`);
+
+//     // NOTE: 데이터 확인용 console.log
+//     // console.log('tickerList', this.tickerList);
+//     // console.log('assetPairs', this.assetPairs);
+
+//     // return response;
+//   } catch (error) {
+//     this.logger.error(`Error fetching market data for ${this.exchangeName}`, error);
+//   }
+// }

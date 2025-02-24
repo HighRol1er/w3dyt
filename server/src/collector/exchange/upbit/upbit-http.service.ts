@@ -40,16 +40,4 @@ export class UpbitHttpService extends BaseHttpService {
     const [quoteToken, baseToken] = symbol.split('-');
     return { baseAsset: baseToken, quoteAsset: quoteToken };
   }
-
-  // fetchRawData(): UpbitDataResponseType[] {
-  //   return this.rawData;
-  // }
-
-  // fetchTickerList(): string[] {
-  //   return this.tickerList;
-  // }
-
-  // fetchAssetPairs(): AssetPair[] {
-  //   return this.assetPairs;
-  // }
 }
