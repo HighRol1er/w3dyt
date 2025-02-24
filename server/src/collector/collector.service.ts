@@ -1,13 +1,8 @@
-import { Injectable, Logger, Inject } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { UpbitApiService } from './exchange/upbit/upbit-http.service';
-import { upbitTickersSchema } from 'src/database/schema/exchange/upbit';
-import { UpbitDataResponseType } from 'src/types/exchange-api/raw-response';
 import { DrizzleClient } from 'src/database/database.module';
-import { AxiosResponse } from 'axios';
-// import { BinanceService } from './exchange/binance/binance.service';
-// import { BithumbService } from './exchange/bithumb/bithumb.service';
-// ... 다른 거래소 서비스들
+import { upbitTickersSchema } from 'src/database/schema/exchange/upbit';
+import { UpbitHttpService } from './exchange/upbit/upbit-http.service';
 
 @Injectable()
 export class CollectorService {
@@ -15,13 +10,13 @@ export class CollectorService {
 
   constructor(
     @Inject('DATABASE') private readonly db: typeof DrizzleClient,
-    private readonly upbitApiService: UpbitApiService,
+    private readonly upbitHttpService: UpbitHttpService,
     // private readonly binanceService: BinanceService,
     // private readonly bithumbService: BithumbService,
     // ... 다른 거래소 서비스들
   ) {}
 
-  // @Cron('*/5 * * * * *')
+  @Cron(CronExpression.EVERY_HOUR)
   async collectMarketData() {
     try {
       await Promise.all([
@@ -40,11 +35,14 @@ export class CollectorService {
   private async collectUpbitTickers() {
     try {
       this.logger.log('Collecting Upbit tickers...');
-      await this.upbitApiService.fetchAllMarketData();
-      const tickerData = this.upbitApiService.fetchRawData();
+      await this.upbitHttpService.fetchAllMarketData();
+      const tickerData = this.upbitHttpService.fetchRawData();
+      // console.log('tickerData', tickerData);
 
       await this.db.transaction(async tx => {
         for (const market of tickerData) {
+          if (!market.market.startsWith('KRW-')) continue;
+
           const payload = {
             currency_pair: market.market,
             korean_name: market.korean_name,
@@ -70,7 +68,4 @@ export class CollectorService {
       throw error;
     }
   }
-
-  // private async collectBinanceMarkets() { ... }
-  // private async collectBithumbMarkets() { ... }
 }
