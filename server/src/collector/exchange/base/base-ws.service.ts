@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
-import { WebSocket } from 'ws';
 import { WEBSOCKET_CONFIG } from 'src/common/constants';
-import { SubscribeMessageType, ParseMessageTickerDataType } from 'src/types/exchange-ws';
+import { ParseMessageTickerDataType } from 'src/types/exchange-ws';
+import { WebSocket } from 'ws';
 
 export abstract class BaseWebSocketService {
   protected ws: WebSocket;

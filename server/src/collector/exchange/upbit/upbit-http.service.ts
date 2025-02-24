@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { BaseApiService } from '../base/base-api.service';
+import axios from 'axios';
+import { AssetPair } from 'src/collector/exchange/base/base-http.service';
 import { API_ENDPOINTS } from 'src/common/constants';
 import { UpbitDataResponseType } from 'src/types/exchange-api';
-import { AssetPair } from 'src/collector/exchange/base/base-api.service';
-import axios, { AxiosResponse } from 'axios';
+import { BaseHttpService } from '../base/base-http.service';
 
 @Injectable()
-export class UpbitApiService extends BaseApiService<UpbitDataResponseType> {
+export class UpbitHttpService extends BaseHttpService<UpbitDataResponseType> {
   protected readonly apiEndpoint = API_ENDPOINTS.UPBIT;
 
   constructor() {
@@ -28,15 +28,15 @@ export class UpbitApiService extends BaseApiService<UpbitDataResponseType> {
     return { baseAsset: baseToken, quoteAsset: quoteToken };
   }
 
-  fetchRawData(): UpbitDataResponseType[] {
-    return this.rawData;
-  }
+  // fetchRawData(): UpbitDataResponseType[] {
+  //   return this.rawData;
+  // }
 
-  fetchTickerList(): string[] {
-    return this.tickerList;
-  }
+  // fetchTickerList(): string[] {
+  //   return this.tickerList;
+  // }
 
-  fetchAssetPairs(): AssetPair[] {
-    return this.assetPairs;
-  }
+  // fetchAssetPairs(): AssetPair[] {
+  //   return this.assetPairs;
+  // }
 }

@@ -140,3 +140,11 @@ redis는 웹소켓 데이터 저장 + 최신 가격 정보 유지
 ✅ Redis는 단기 캐싱 (5분 TTL), DB는 장기 저장
 
 👉 이렇게 하면 거래가 없는 코인도 가격 데이터를 제공할 수 있고, 실시간 업데이트도 가능해! 🚀
+
+# 2월 23일 내가 궁금했던 것중 하나
+
+upbitApiService를 upbitservice.ts랑 upbit-ws.service.ts에서 주입받아서 사용중인데
+이게 인스턴스가 두번 생성되고 서로 공유되는게 아닐 수 있다는 생각이 들었는데
+그걸 확인하기 위해
+upbitApiService에서 console.log를 찍어보니 인스턴스가 진짜 딱 한번만 찍힘
+이게 NestJS의 싱글톤이구나 !!

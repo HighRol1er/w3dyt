@@ -1,21 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { WEBSOCKET_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
-import { BaseWebSocketService } from '../base/base-ws.service';
-import { formatChangeRate } from 'src/utils/number.util';
+import { EXCHANGE_NAME, WEBSOCKET_ENDPOINTS } from 'src/common/constants';
+import { RedisService } from 'src/redis/redis.service';
 import {
-  UpbitSubscribeMessageType,
   ParseMessageTickerDataType,
   UpbitRawDataType,
+  UpbitSubscribeMessageType,
 } from 'src/types/exchange-ws';
-import { UpbitApiService } from './upbit-api.service';
-import { RedisService } from 'src/redis/redis.service';
+import { formatChangeRate } from 'src/utils/number.util';
+import { BaseWebSocketService } from '../base/base-ws.service';
+import { UpbitHttpService } from './upbit-http.service';
 
 @Injectable()
 export class UpbitWebSocketService extends BaseWebSocketService {
   protected readonly wsEndpoint = WEBSOCKET_ENDPOINTS.UPBIT;
 
   constructor(
-    private readonly upbitApiService: UpbitApiService,
+    private readonly upbitHttpService: UpbitHttpService,
     private readonly redisService: RedisService,
   ) {
     super('Upbit');
@@ -25,8 +25,8 @@ export class UpbitWebSocketService extends BaseWebSocketService {
     // 먼저 마켓 데이터를 가져옴
     // await this.upbitApiService.fetchAllMarketData();
 
-    const tickers = this.upbitApiService.fetchTickerList();
-    console.log('Upbit Tickers:', tickers);
+    const tickers = this.upbitHttpService.fetchTickerList();
+    // console.log('Upbit Tickers:', tickers);
 
     const subscribeMessage: UpbitSubscribeMessageType = [
       { ticket: 'test' },
@@ -43,7 +43,7 @@ export class UpbitWebSocketService extends BaseWebSocketService {
   protected async parseMessageData(data: Buffer): Promise<ParseMessageTickerDataType | null> {
     try {
       const rawData: UpbitRawDataType = JSON.parse(data.toString());
-      const { baseAsset, quoteAsset } = this.upbitApiService.parseTradingPair(rawData.cd);
+      const { baseAsset, quoteAsset } = this.upbitHttpService.parseTradingPair(rawData.cd);
       const redisKey = `${EXCHANGE_NAME.UPBIT}-${baseAsset}-${quoteAsset}`;
 
       const tickerData: ParseMessageTickerDataType = {
@@ -56,7 +56,7 @@ export class UpbitWebSocketService extends BaseWebSocketService {
 
       // NOTE: 데이터 확인용 console.log
       // console.log('rawData: ', rawData);
-      console.log('tickerData: ', tickerData);
+      // console.log('tickerData: ', tickerData);
       await this.redisService.set(redisKey, JSON.stringify(tickerData));
 
       return tickerData;

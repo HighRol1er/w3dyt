@@ -1,6 +1,5 @@
 import { Logger } from '@nestjs/common';
-import axios, { AxiosResponse } from 'axios';
-// import { parseUpbitData, parseUpbitMarket } from 'src/utils/parse-exchange-data';
+import axios from 'axios';
 import { ExchangeDataResponseType } from 'src/types/exchange-api';
 
 export interface AssetPair {
@@ -8,7 +7,7 @@ export interface AssetPair {
   quoteAsset: string;
 }
 
-export abstract class BaseApiService<T = ExchangeDataResponseType> {
+export abstract class BaseHttpService<T = ExchangeDataResponseType> {
   protected rawData: T[] = [];
   protected tickerList: string[] = []; // "BTC-KRW", "ETH-KRW", "XRP-KRW"
   protected assetPairs: AssetPair[] = []; // { baseAsset: "BTC", quoteAsset: "KRW" }, { baseAsset: "ETH", quoteAsset: "KRW" }, { baseAsset: "XRP", quoteAsset: "KRW" }
@@ -16,7 +15,7 @@ export abstract class BaseApiService<T = ExchangeDataResponseType> {
   protected abstract readonly apiEndpoint: string;
 
   constructor(protected readonly exchangeName: string) {
-    this.logger = new Logger(`${exchangeName}ApiService`);
+    this.logger = new Logger(`${exchangeName}HttpService`);
   }
   async fetchAllMarketData() {
     try {

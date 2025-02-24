@@ -1,6 +1,6 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { UpbitApiService } from './exchange/upbit/upbit-api.service';
+import { UpbitApiService } from './exchange/upbit/upbit-http.service';
 import { upbitTickersSchema } from 'src/database/schema/exchange/upbit';
 import { UpbitDataResponseType } from 'src/types/exchange-api/raw-response';
 import { DrizzleClient } from 'src/database/database.module';
