@@ -34,7 +34,9 @@ export interface BithumbDataResponseType {
  */
 export interface BinanceDataResponseType {
   symbol: string;
-  price: string;
+  quoteAsset: string;
+  status: string;
+  isSpotTradingAllowed: boolean;
 }
 
 export type ExchangeDataResponseType =

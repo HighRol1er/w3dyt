@@ -18,11 +18,13 @@ export abstract class BaseHttpService {
     this.logger = new Logger(`${exchangeName}HttpService`);
   }
 
-  abstract fetchAllMarketData(): Promise<AxiosResponse<ExchangeDataResponseType[]>>;
+  protected abstract fetchAllMarketData(): Promise<void>;
   protected abstract parseExchangeData(data: ExchangeDataResponseType[]): string[];
 
-  abstract parseTradingPair(symbol: string): AssetPair;
+  // abstract parseTradingPair(symbol: string): AssetPair; //애는 그냥 유틸로 빼야될꺼같은데?
+  abstract parseTradingPair(symbol: any): any; //애는 그냥 유틸로 빼야될꺼같은데?
 
+  // TODO: rawData 필요 없고 파싱 작업만 하면 될꺼같음
   fetchRawData(): ExchangeDataResponseType[] {
     return this.rawData;
   }
@@ -32,7 +34,8 @@ export abstract class BaseHttpService {
     return this.tickerList;
   }
   // 애 굳이 안쓸꺼같은데?
-  fetchAssetPairs(): AssetPair[] {
+  // fetchAssetPairs(): AssetPair[] {
+  fetchAssetPairs(): any[] {
     // console.log('assetPairs', this.assetPairs);
     return this.assetPairs;
   }

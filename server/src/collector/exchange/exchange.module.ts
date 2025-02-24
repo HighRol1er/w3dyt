@@ -7,10 +7,10 @@ import { Module } from '@nestjs/common';
 // import { CoinbaseWebsocketService } from './coinbase/coinbase-ws.service';
 // import { BybitWebsocketService } from './bybit/bybit-ws.service';
 import { RedisService } from 'src/redis/redis.service';
-// import { UpbitService } from './upbit/upbit.service';
 import { UpbitModule } from './upbit/upbit.module';
+import { BinanceModule } from './binance/binance.module';
 @Module({
-  imports: [UpbitModule],
+  imports: [UpbitModule, BinanceModule],
   providers: [
     RedisService,
 
@@ -26,6 +26,7 @@ import { UpbitModule } from './upbit/upbit.module';
   exports: [
     RedisService,
     UpbitModule,
+    BinanceModule,
     // UpbitService,
     // // UpbitWebsocketService,
     // BinanceWebsocketService,

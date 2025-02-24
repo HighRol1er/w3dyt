@@ -12,20 +12,20 @@ export class UpbitHttpService extends BaseHttpService {
   constructor() {
     super('Upbit');
   }
-  async fetchAllMarketData(): Promise<AxiosResponse<UpbitDataResponseType[]>> {
+  async fetchAllMarketData(): Promise<void> {
     try {
-      const response = await axios.get<UpbitDataResponseType[]>(this.apiEndpoint);
-      this.rawData = response.data;
-      this.tickerList = this.parseExchangeData(response.data);
+      const { data } = await axios.get<UpbitDataResponseType[]>(this.apiEndpoint);
+      this.rawData = data;
+      this.tickerList = this.parseExchangeData(data);
       this.assetPairs = this.tickerList.map(symbol => this.parseTradingPair(symbol));
 
       this.logger.log(`Fetched market data for ${this.exchangeName}`);
 
       // NOTE: 데이터 확인용 console.log
+      // console.log('data', data);
+      // console.log('rawData', this.rawData);
       // console.log('tickerList', this.tickerList);
       // console.log('assetPairs', this.assetPairs);
-
-      return response;
     } catch (error) {
       this.logger.error(`Error fetching market data for ${this.exchangeName}`, error);
       throw error;

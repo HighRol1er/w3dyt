@@ -2,7 +2,7 @@ import { pgTable, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
-export const binanceTickers = pgTable('exchange_binance', {
+export const binanceTickersSchema = pgTable('exchange_binance', {
   currency_pair: varchar('currency_pair', { length: 20 }).primaryKey(), // KRW-BTC
   base_asset: varchar('base_asset', { length: 10 }).notNull(), // BTC
   quote_asset: varchar('quote_asset', { length: 10 }).notNull(), // USDT
@@ -11,8 +11,8 @@ export const binanceTickers = pgTable('exchange_binance', {
   updated_at: timestamp('updated_at').notNull().defaultNow(),
 });
 
-const binanceTickersSelectSchema = createSelectSchema(binanceTickers);
-const binanceTickersInsertSchema = createInsertSchema(binanceTickers, {
+const binanceTickersSelectSchema = createSelectSchema(binanceTickersSchema);
+const binanceTickersInsertSchema = createInsertSchema(binanceTickersSchema, {
   currency_pair: z.string().min(1),
   base_asset: z.string().min(1),
   quote_asset: z.string().min(1),
