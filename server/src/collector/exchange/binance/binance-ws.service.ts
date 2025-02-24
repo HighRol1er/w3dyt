@@ -27,7 +27,7 @@ export class BinanceWebsocketService extends BaseWebSocketService {
   }
 
   protected getSubscribeMessage(): BinanceSubscribeMessageType {
-    const tickers = this.binanceHttpService.fetchTickerList();
+    const tickers = this.binanceHttpService.getSymbolList();
 
     return {
       method: 'SUBSCRIBE',

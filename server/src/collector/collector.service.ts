@@ -20,13 +20,13 @@ export class CollectorService {
     // ... 다른 거래소 서비스들
   ) {}
 
-  // @Cron(CronExpression.EVERY_5_SECONDS) // test
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_5_SECONDS) // test
+  // @Cron(CronExpression.EVERY_HOUR)
   async collectMarketData() {
     try {
       await Promise.all([
         this.collectUpbitTickers(),
-        this.collectBinanceTickers(),
+        // this.collectBinanceTickers(),
         // this.collectBithumbMarkets(),
         // ... 다른 거래소
       ]);
@@ -40,8 +40,8 @@ export class CollectorService {
   private async collectUpbitTickers() {
     try {
       this.logger.log('Collecting Upbit tickers...');
-      await this.upbitHttpService.fetchAllMarketData();
-      const tickerData = this.upbitHttpService.fetchRawData() as UpbitDataResponseType[];
+      const tickerData = await this.upbitHttpService.fetchAllMarketData();
+      // const tickerData = this.upbitHttpService.fetchTickerList() as UpbitDataResponseType[];
       // console.log('tickerData', tickerData);
 
       await this.db.transaction(async tx => {
@@ -74,47 +74,46 @@ export class CollectorService {
     }
   }
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
-  private async collectBinanceTickers() {
-    try {
-      this.logger.log('Collecting Binance tickers...');
-      await this.binanceHttpService.fetchAllMarketData();
-      const tickerData = this.binanceHttpService.fetchRawData() as BinanceDataResponseType[];
+  // @Cron(CronExpression.EVERY_5_SECONDS)
+  // private async collectBinanceTickers() {
+  //   try {
+  //     this.logger.log('Collecting Binance tickers...');
+  //     await this.binanceHttpService.fetchAllMarketData();
 
-      // 데이터가 실제로 가져와지는지 확인
-      console.log('Fetched ticker data length:', tickerData.length);
+  //     // 데이터가 실제로 가져와지는지 확인
+  //     console.log('Fetched ticker data length:', tickerData.length);
 
-      // USDT 페어 필터링 확인
-      const usdtPairs = tickerData.filter(market => market.symbol.endsWith('USDT'));
-      console.log('USDT pairs count:', usdtPairs.length);
+  //     // USDT 페어 필터링 확인
+  //     const usdtPairs = tickerData.filter(market => market.symbol.endsWith('USDT'));
+  //     console.log('USDT pairs count:', usdtPairs.length);
 
-      await this.db.transaction(async tx => {
-        for (const market of tickerData) {
-          if (!market.symbol.endsWith('USDT')) continue;
+  //     await this.db.transaction(async tx => {
+  //       for (const market of tickerData) {
+  //         if (!market.symbol.endsWith('USDT')) continue;
 
-          const payload = {
-            currency_pair: market.symbol,
-            korean_name: market.symbol,
-            english_name: market.symbol,
-            base_asset: market.symbol.split('USDT')[0],
-            quote_asset: 'USDT',
-            created_at: new Date(),
-            updated_at: new Date(),
-          };
+  //         const payload = {
+  //           currency_pair: market.symbol,
+  //           korean_name: market.symbol,
+  //           english_name: market.symbol,
+  //           base_asset: market.symbol.split('USDT')[0],
+  //           quote_asset: 'USDT',
+  //           created_at: new Date(),
+  //           updated_at: new Date(),
+  //         };
 
-          await tx
-            .insert(binanceTickersSchema)
-            .values(payload)
-            .onConflictDoUpdate({
-              target: binanceTickersSchema.currency_pair,
-              set: { updated_at: new Date() },
-            });
-        }
-      });
-      this.logger.log('Successfully collected Binance tickers');
-    } catch (error) {
-      this.logger.error('Failed to collect Binance tickers', error);
-      throw error;
-    }
-  }
+  //         await tx
+  //           .insert(binanceTickersSchema)
+  //           .values(payload)
+  //           .onConflictDoUpdate({
+  //             target: binanceTickersSchema.currency_pair,
+  //             set: { updated_at: new Date() },
+  //           });
+  //       }
+  //     });
+  //     this.logger.log('Successfully collected Binance tickers');
+  //   } catch (error) {
+  //     this.logger.error('Failed to collect Binance tickers', error);
+  //     throw error;
+  //   }
+  // }
 }

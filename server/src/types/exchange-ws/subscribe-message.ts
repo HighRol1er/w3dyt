@@ -24,6 +24,7 @@ export type BithumbSubscribeMessageType = [
   },
   { format: 'DEFAULT' | 'SIMPLE' },
 ];
+
 /**************************
  *     GLOBAL EXCHANGE    *
  **************************/
