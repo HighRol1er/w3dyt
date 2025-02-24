@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DrizzleClient } from 'src/database/database.module';
 import { upbitTickersSchema } from 'src/database/schema/exchange/upbit';
+import { UpbitDataResponseType } from 'src/types/exchange-http';
 import { UpbitHttpService } from './exchange/upbit/upbit-http.service';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class CollectorService {
     // ... 다른 거래소 서비스들
   ) {}
 
+  // @Cron(CronExpression.EVERY_5_SECONDS) // test
   @Cron(CronExpression.EVERY_HOUR)
   async collectMarketData() {
     try {
@@ -36,7 +38,7 @@ export class CollectorService {
     try {
       this.logger.log('Collecting Upbit tickers...');
       await this.upbitHttpService.fetchAllMarketData();
-      const tickerData = this.upbitHttpService.fetchRawData();
+      const tickerData = this.upbitHttpService.fetchRawData() as UpbitDataResponseType[];
       // console.log('tickerData', tickerData);
 
       await this.db.transaction(async tx => {

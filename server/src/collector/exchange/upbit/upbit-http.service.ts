@@ -1,22 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { AssetPair } from 'src/collector/exchange/base/base-http.service';
 import { API_ENDPOINTS } from 'src/common/constants';
-import { UpbitDataResponseType } from 'src/types/exchange-api';
+import { UpbitDataResponseType } from 'src/types/exchange-http';
 import { BaseHttpService } from '../base/base-http.service';
 
 @Injectable()
-export class UpbitHttpService extends BaseHttpService<UpbitDataResponseType> {
+export class UpbitHttpService extends BaseHttpService {
   protected readonly apiEndpoint = API_ENDPOINTS.UPBIT;
 
   constructor() {
     super('Upbit');
   }
-  async fetchAllMarketData(): Promise<void> {
-    const response = await axios.get<UpbitDataResponseType[]>(this.apiEndpoint);
-    this.rawData = response.data;
-    this.tickerList = this.parseExchangeData(response.data);
-    this.assetPairs = this.tickerList.map(symbol => this.parseTradingPair(symbol));
+  async fetchAllMarketData(): Promise<AxiosResponse<UpbitDataResponseType[]>> {
+    try {
+      const response = await axios.get<UpbitDataResponseType[]>(this.apiEndpoint);
+      this.rawData = response.data;
+      this.tickerList = this.parseExchangeData(response.data);
+      this.assetPairs = this.tickerList.map(symbol => this.parseTradingPair(symbol));
+
+      this.logger.log(`Fetched market data for ${this.exchangeName}`);
+
+      // NOTE: 데이터 확인용 console.log
+      // console.log('tickerList', this.tickerList);
+      // console.log('assetPairs', this.assetPairs);
+
+      return response;
+    } catch (error) {
+      this.logger.error(`Error fetching market data for ${this.exchangeName}`, error);
+      throw error;
+    }
   }
 
   protected parseExchangeData(data: UpbitDataResponseType[]) {
