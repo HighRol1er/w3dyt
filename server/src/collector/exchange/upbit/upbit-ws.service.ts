@@ -23,14 +23,14 @@ export class UpbitWebSocketService extends BaseWebSocketService {
   }
 
   protected async subscribe(): Promise<void> {
-    const tickers = this.upbitHttpService.getSymbolList();
-    // console.log('Upbit Tickers:', tickers);
+    const symbols = this.upbitHttpService.getSymbolList();
+    // console.log('Upbit Tickers:', symbols);
 
     const subscribeMessage: UpbitSubscribeMessageType = [
       { ticket: 'test' },
       {
         type: 'ticker',
-        codes: tickers,
+        codes: symbols,
       },
       { format: 'SIMPLE' },
     ];

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { BaseHttpService } from '../base/base-http.service';
-import { BinanceDataResponseType } from 'src/types/exchange-http';
+import { BinanceMarketResponse } from 'src/types/exchange-http';
 import { API_ENDPOINTS } from 'src/common/constants';
 import { AssetPair } from 'src/types/asset';
 @Injectable()
@@ -12,9 +12,9 @@ export class BinanceHttpService extends BaseHttpService {
     super('Binance');
   }
 
-  async fetchAllMarketData(): Promise<void> {
+  async fetchAllMarketData(): Promise<BinanceMarketResponse[]> {
     try {
-      const response = await axios.get<{ symbols: BinanceDataResponseType[] }>(this.apiEndpoint);
+      const response = await axios.get<{ symbols: BinanceMarketResponse[] }>(this.apiEndpoint);
 
       this.marketList = this.parseExchangeData(response.data.symbols);
       this.assetPairs = this.marketList.map(symbol => this.parseTradingPair(symbol));
@@ -26,13 +26,15 @@ export class BinanceHttpService extends BaseHttpService {
       // console.log('rawData', this.rawData);
       // console.log('symbolList', this.symbolList);
       // console.log('assetPairs', this.assetPairs);
+
+      return response.data.symbols;
     } catch (error) {
       this.logger.error(`Error fetching market data for ${this.exchangeName}`, error);
       throw error;
     }
   }
 
-  protected parseExchangeData(data: BinanceDataResponseType[]): string[] {
+  protected parseExchangeData(data: BinanceMarketResponse[]): string[] {
     return data
       .filter(
         symbol =>

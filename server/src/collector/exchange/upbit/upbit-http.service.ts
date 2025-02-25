@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { API_ENDPOINTS } from 'src/common/constants';
-import { UpbitDataResponseType } from 'src/types/exchange-http';
+import { UpbitMarketResponse } from 'src/types/exchange-http';
 import { BaseHttpService } from '../base/base-http.service';
 import { upbitKrwMarketParser } from 'src/utils/market-parser.util';
+import { upbitAssetSplitter } from 'src/utils/asset-splitter.util';
 @Injectable()
 export class UpbitHttpService extends BaseHttpService {
   protected readonly apiEndpoint = API_ENDPOINTS.UPBIT;
@@ -11,19 +12,18 @@ export class UpbitHttpService extends BaseHttpService {
   constructor() {
     super('Upbit');
   }
-  async fetchAllMarketData(): Promise<any> {
+  async fetchAllMarketData(): Promise<UpbitMarketResponse[]> {
     try {
-      const { data } = await axios.get<UpbitDataResponseType[]>(this.apiEndpoint);
+      const { data } = await axios.get<UpbitMarketResponse[]>(this.apiEndpoint);
 
       this.marketList = upbitKrwMarketParser(data);
-      // this.assetPairs = this.symbolList.map(symbol => this.parseTradingPair(symbol));
+      this.assetPairs = this.marketList.map(symbol => upbitAssetSplitter(symbol));
 
       this.logger.log(`Fetched market data for ${this.exchangeName}`);
 
-      // NOTE: 데이터 확인용 console.log
+      // NOTE: ���이��� ������� console.log
       // console.log('data', data);
-      // console.log('rawData', this.rawData);
-      // console.log('symbolList', this.symbolList);
+      // console.log('symbolList', this.marketList);
       // console.log('assetPairs', this.assetPairs);
 
       return data;

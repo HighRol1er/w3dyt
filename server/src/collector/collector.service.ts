@@ -1,12 +1,12 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DrizzleClient } from 'src/database/database.module';
-import { upbitTickersSchema } from 'src/database/schema/exchange/upbit';
-import { binanceTickersSchema } from 'src/database/schema/exchange/binance';
-import { UpbitDataResponseType } from 'src/types/exchange-http';
+import { upbitSymbolSchema } from 'src/database/schema/exchange/upbit';
+// import { binanceTickersSchema } from 'src/database/schema/exchange/binance';
+// import { UpbitDataResponseType } from 'src/types/exchange-http';
 import { UpbitHttpService } from './exchange/upbit/upbit-http.service';
 import { BinanceHttpService } from './exchange/binance/binance-http.service';
-import { BinanceDataResponseType } from 'src/types/exchange-http';
+// import { BinanceDataResponseType } from 'src/types/exchange-http';
 @Injectable()
 export class CollectorService {
   private readonly logger = new Logger(CollectorService.name);
@@ -20,8 +20,8 @@ export class CollectorService {
     // ... 다른 거래소 서비스들
   ) {}
 
-  @Cron(CronExpression.EVERY_5_SECONDS) // test
-  // @Cron(CronExpression.EVERY_HOUR)
+  // @Cron(CronExpression.EVERY_5_SECONDS) // test
+  @Cron(CronExpression.EVERY_HOUR)
   async collectMarketData() {
     try {
       await Promise.all([
@@ -40,12 +40,12 @@ export class CollectorService {
   private async collectUpbitTickers() {
     try {
       this.logger.log('Collecting Upbit tickers...');
-      const tickerData = await this.upbitHttpService.fetchAllMarketData();
+      const data = await this.upbitHttpService.fetchAllMarketData();
       // const tickerData = this.upbitHttpService.fetchTickerList() as UpbitDataResponseType[];
       // console.log('tickerData', tickerData);
 
       await this.db.transaction(async tx => {
-        for (const market of tickerData) {
+        for (const market of data) {
           if (!market.market.startsWith('KRW-')) continue;
 
           const payload = {
@@ -58,11 +58,13 @@ export class CollectorService {
             updated_at: new Date(),
           };
 
+          console.log('payload', payload);
+
           await tx
-            .insert(upbitTickersSchema)
+            .insert(upbitSymbolSchema)
             .values(payload)
             .onConflictDoUpdate({
-              target: upbitTickersSchema.currency_pair,
+              target: upbitSymbolSchema.currency_pair,
               set: { updated_at: new Date() },
             });
         }

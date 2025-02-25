@@ -1,5 +1,5 @@
 /**
- * Upbit KRW Market Parser - KRW 마켓의 심볼만 필터링하여 반환
+ * Upbit KRW Market Parser
  * @param data Upbit API로부터 받은 전체 마켓 데이터 배열
  * @returns KRW 마켓의 심볼 목록 (예: ["KRW-BTC", "KRW-ETH", ...])
  * @example

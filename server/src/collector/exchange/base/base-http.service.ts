@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
-import { AssetPair } from 'src/types/test-factory/exchange';
-
+import { AssetPair } from 'src/types/asset';
+import { ExchangeMarketResponse } from 'src/types/exchange-http';
 export abstract class BaseHttpService {
   protected marketList: string[] = []; // "BTC-KRW", "ETH-KRW", "XRP-KRW"
   protected assetPairs: AssetPair[] = []; // { baseAsset: "BTC", quoteAsset: "KRW" }, { baseAsset: "ETH", quoteAsset: "KRW" }, { baseAsset: "XRP", quoteAsset: "KRW" }
@@ -10,8 +10,8 @@ export abstract class BaseHttpService {
   constructor(protected readonly exchangeName: string) {
     this.logger = new Logger(`${exchangeName}HttpService`);
   }
-  //TODO: any타입 수정 필요
-  protected abstract fetchAllMarketData(): Promise<any>;
+  //TODO: any����� ���� ����
+  protected abstract fetchAllMarketData(): Promise<ExchangeMarketResponse[]>;
 
   getSymbolList(): string[] {
     // console.log('tickerList', this.tickerList);
