@@ -1,16 +1,19 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { DrizzleClient } from 'src/database/database.module';
-import { upbitSymbolSchema } from 'src/database/schema/exchange/upbit';
-// import { binanceTickersSchema } from 'src/database/schema/exchange/binance';
-// import { UpbitDataResponseType } from 'src/types/exchange-http';
-import { bithumbSymbolSchema } from 'src/database/schema/exchange/bithumb';
-import { BinanceHttpService } from './exchange/binance/binance-http.service';
-import { BithumbHttpService } from './exchange/bithumb/bithumb-http.service';
-import { UpbitHttpService } from './exchange/upbit/upbit-http.service';
-// import { BinanceDataResponseType } from 'src/types/exchange-http';
-import { UpbitWebSocketService } from './exchange/upbit/upbit-ws.service';
 import { sql } from 'drizzle-orm';
+
+import { UpbitHttpService } from './exchange/upbit/upbit-http.service';
+import { UpbitWebSocketService } from './exchange/upbit/upbit-ws.service';
+import { upbitSymbolSchema } from 'src/database/schema/exchange/upbit';
+
+import { BithumbHttpService } from './exchange/bithumb/bithumb-http.service';
+import { BithumbWebSocketService } from './exchange/bithumb/bithumb-ws.service';
+import { bithumbSymbolSchema } from 'src/database/schema/exchange/bithumb';
+
+import { BinanceHttpService } from './exchange/binance/binance-http.service';
+// import { binanceTickersSchema } from 'src/database/schema/exchange/binance';
+// import { BinanceDataResponseType } from 'src/types/exchange-http';
 
 @Injectable()
 export class CollectorService {
@@ -20,8 +23,9 @@ export class CollectorService {
     @Inject('DATABASE') private readonly db: typeof DrizzleClient,
     private readonly upbitHttpService: UpbitHttpService,
     private readonly upbitWebSocketService: UpbitWebSocketService,
-    private readonly binanceHttpService: BinanceHttpService,
     private readonly bithumbHttpService: BithumbHttpService,
+    private readonly bithumbWebSocketService: BithumbWebSocketService,
+    private readonly binanceHttpService: BinanceHttpService,
     // private readonly binanceService: BinanceService,
     // private readonly bithumbService: BithumbService,
     // ... 다른 거래소 서비스들
@@ -121,12 +125,35 @@ export class CollectorService {
   private async collectBithumbMarket() {
     try {
       this.logger.log('Collecting Bithumb tickers...');
-      const data = await this.bithumbHttpService.fetchAllMarketData();
+      const allMarketData = await this.bithumbHttpService.fetchAllMarketData();
+      const newMarketData = allMarketData.filter(market => market.market.startsWith('KRW-'));
 
+      // 현재 DB에 있는 마켓 데이터 조회
+      const currentMarkets = await this.db
+        .select({ currency_pair: bithumbSymbolSchema.currency_pair })
+        .from(bithumbSymbolSchema);
+
+      const currentMarketSet = new Set(currentMarkets.map(m => m.currency_pair));
+      const newMarketSet = new Set(newMarketData.map(m => m.market));
+
+      // 상장 폐지된 마켓 찾기
+      const delistedMarkets = currentMarkets
+        .filter(market => !newMarketSet.has(market.currency_pair))
+        .map(market => market.currency_pair);
+
+      console.log('delistedMarkets', delistedMarkets);
+
+      // DB 업데이트 (신규 상장 및 업데이트)
       await this.db.transaction(async tx => {
-        for (const market of data) {
-          if (!market.market.startsWith('KRW-')) continue;
+        // 상장 폐지된 마켓 삭제
+        if (delistedMarkets.length > 0) {
+          await tx
+            .delete(bithumbSymbolSchema)
+            .where(sql`${bithumbSymbolSchema.currency_pair} IN ${delistedMarkets}`);
+        }
 
+        // 신규 상장 및 업데이트
+        for (const market of newMarketData) {
           const payload = {
             currency_pair: market.market,
             korean_name: market.korean_name,
@@ -137,8 +164,6 @@ export class CollectorService {
             updated_at: new Date(),
           };
 
-          // console.log('payload', payload);
-
           await tx
             .insert(bithumbSymbolSchema)
             .values(payload)
@@ -148,6 +173,17 @@ export class CollectorService {
             });
         }
       });
+
+      // 변경사항이 있을 때만 WebSocket 갱신
+      const hasChanges =
+        delistedMarkets.length > 0 ||
+        newMarketData.some(market => !currentMarketSet.has(market.market));
+
+      if (hasChanges) {
+        this.logger.log('Market list changed, refreshing WebSocket connection...');
+        await this.bithumbWebSocketService.refreshSubscription();
+      }
+
       this.logger.log('Successfully collected Bithumb tickers');
     } catch (error) {
       this.logger.error('Failed to collect Bithumb tickers', error);

@@ -1,7 +1,7 @@
 import { pgTable, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-export const okxTickers = pgTable('exchange_okx', {
+export const okxSymbolSchema = pgTable('exchange_okx', {
   currency_pair: varchar('currency_pair', { length: 20 }).primaryKey(), // BTC-USDT
   base_asset: varchar('base_asset', { length: 10 }).notNull(), // BTC
   quote_asset: varchar('quote_asset', { length: 10 }).notNull(), // USDT
@@ -10,12 +10,12 @@ export const okxTickers = pgTable('exchange_okx', {
   updated_at: timestamp('updated_at').notNull().defaultNow(),
 });
 
-const okxTickersSelectSchema = createSelectSchema(okxTickers);
-const okxTickersInsertSchema = createInsertSchema(okxTickers, {
+const okxSymbolSelectSchema = createSelectSchema(okxSymbolSchema);
+const okxSymbolInsertSchema = createInsertSchema(okxSymbolSchema, {
   currency_pair: z.string().min(1),
   base_asset: z.string().min(1),
   quote_asset: z.string().min(1),
 });
 
-export type OkxTickerSelect = z.infer<typeof okxTickersSelectSchema>;
-export type OkxTickerInsert = z.infer<typeof okxTickersInsertSchema>;
+export type OkxSymbolSelect = z.infer<typeof okxSymbolSelectSchema>;
+export type OkxSymbolInsert = z.infer<typeof okxSymbolInsertSchema>;
