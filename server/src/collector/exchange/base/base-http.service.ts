@@ -10,16 +10,14 @@ export abstract class BaseHttpService {
   constructor(protected readonly exchangeName: string) {
     this.logger = new Logger(`${exchangeName}HttpService`);
   }
-  //TODO: any����� ���� ����
+
   protected abstract fetchAllMarketData(): Promise<ExchangeMarketResponse[]>;
 
   getSymbolList(): string[] {
-    // console.log('tickerList', this.tickerList);
     return this.marketList;
   }
   // 애 굳이 안쓸꺼같은데?
   getAssetPairs(): AssetPair[] {
-    // console.log('assetPairs', this.assetPairs);
     return this.assetPairs;
   }
 }

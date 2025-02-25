@@ -24,7 +24,6 @@ export class UpbitWebSocketService extends BaseWebSocketService {
 
   protected async subscribe(): Promise<void> {
     const symbols = this.upbitHttpService.getSymbolList();
-    // console.log('Upbit Tickers:', symbols);
 
     const subscribeMessage: UpbitSubscribeMessageType = [
       { ticket: 'test' },
@@ -57,13 +56,15 @@ export class UpbitWebSocketService extends BaseWebSocketService {
       // console.log('tickerData: ', tickerData);
       await this.redisService.set(redisKey, JSON.stringify(tickerData));
 
+      // 데이터가 성공적으로 파싱되면 재시도 횟수 초기화
+      this.reconnectAttempts = 0;
+
       return tickerData;
     } catch (error) {
       this.logger.error(`Error parsing message data: ${error.message}`, {
         data,
         error,
       });
-
       return null;
     }
   }

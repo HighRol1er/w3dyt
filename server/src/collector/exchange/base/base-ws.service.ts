@@ -56,6 +56,7 @@ export abstract class BaseWebSocketService {
     });
   }
 
+  // Client 연결 로직 (FE 부착할 때 쓸꺼)
   handleClientConnection(client: WebSocket) {
     this.clients.add(client);
     this.logger.log(`${this.exchangeName} Client connected`);
@@ -78,5 +79,17 @@ export abstract class BaseWebSocketService {
     } else {
       this.logger.error('Max reconnection attempts reached');
     }
+  }
+
+  protected async resubscribe(): Promise<void> {
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.close();
+    }
+    await this.connectWebSocket();
+  }
+
+  public async refreshSubscription(): Promise<void> {
+    this.logger.log(`Refreshing ${this.exchangeName} WebSocket subscription...`);
+    await this.resubscribe();
   }
 }

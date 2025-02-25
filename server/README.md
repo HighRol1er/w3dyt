@@ -165,3 +165,33 @@ upbitApiService에서 console.log를 찍어보니 인스턴스가 진짜 딱 한
 
 cronjob으로 가져오는건 그대로 하고 30분마다 거래소 api를 사용해서 db랑 데이터를 비교해서
 신규 상장 종목 혹은 상장폐지되는 종목이 있다면 api를 새로 호출해서 새로 없어진 자산 혹은 생긴 자산만 push로 넣어야하나?
+
+# 2월 25일 구독 메세지 갱신 문제 (해결)
+
+현재 getSymbolData()로 가져와서 웹소캣 구독을 진행하는데
+이렇게하면 신규 상장 혹은 폐지 됐을 때도 똑같은 메세지를 보냄
+db는 주기적인 cron작업을 진행하니깐 이걸
+db데이터랑 비교해서 새로운 or 없어진 코인이 있는지 vaildate하는 함수를 만들어서
+검증을 해야될 듯
+
+-> DB데이터를 가져오는 시점에서 db랑 비교해서 새로운 변경점이 있을경우엔 웹소켓 구독 메세지를 갱신해주는 방식으로 변경
+
+# 2월 25일웹소캣 재연결 횟수 문제 (해결)
+
+[Nest] 38724 - 02/25/2025, 3:19:00 PM LOG [CollectorService] Collecting Upbit tickers...
+[Nest] 38724 - 02/25/2025, 3:19:00 PM LOG [CollectorService] Collecting Bithumb tickers...
+[Nest] 38724 - 02/25/2025, 3:19:00 PM LOG [UpbitHttpService] Fetched market data for Upbit
+[Nest] 38724 - 02/25/2025, 3:19:00 PM LOG [BithumbHttpService] Fetched market data for Bithumb
+[Nest] 38724 - 02/25/2025, 3:19:00 PM LOG [CollectorService] Market list changed, refreshing WebSocket connection...
+[Nest] 38724 - 02/25/2025, 3:19:00 PM LOG [UpbitWebSocketService] Refreshing Upbit WebSocket subscription...
+[Nest] 38724 - 02/25/2025, 3:19:00 PM LOG [CollectorService] Successfully collected Upbit tickers
+[Nest] 38724 - 02/25/2025, 3:19:00 PM WARN [UpbitWebSocketService] Disconnected from Upbit WebSocket
+[Nest] 38724 - 02/25/2025, 3:19:00 PM LOG [UpbitWebSocketService] Reconnecting... Attempt 2/5
+[Nest] 38724 - 02/25/2025, 3:19:00 PM LOG [UpbitWebSocketService] Upbit WebSocket Connected
+[Nest] 38724 - 02/25/2025, 3:19:00 PM LOG [CollectorService] Successfully collected Bithumb tickers
+[Nest] 38724 - 02/25/2025, 3:19:00 PM LOG [CollectorService] Successfully collected market data from all exchanges
+[Nest] 38724 - 02/25/2025, 3:19:01 PM LOG [UpbitWebSocketService] Upbit WebSocket Connected
+
+재연결 문제랑 30초마다 초기화 될때마다 Market list changed가 되어버리네.. WTF
+
+-> 데이터가 완전히 내 BE서버로 파싱됐을 때 재연결 횟수 초기화를 시켜줌
