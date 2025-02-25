@@ -11,7 +11,7 @@ import { BithumbHttpService } from './exchange/bithumb/bithumb-http.service';
 import { BithumbWebSocketService } from './exchange/bithumb/bithumb-ws.service';
 import { bithumbSymbolSchema } from 'src/database/schema/exchange/bithumb';
 
-import { BinanceHttpService } from './exchange/binance/binance-http.service';
+// import { BinanceHttpService } from './exchange/binance/binance-http.service';
 // import { binanceTickersSchema } from 'src/database/schema/exchange/binance';
 // import { BinanceDataResponseType } from 'src/types/exchange-http';
 
@@ -25,7 +25,7 @@ export class CollectorService {
     private readonly upbitWebSocketService: UpbitWebSocketService,
     private readonly bithumbHttpService: BithumbHttpService,
     private readonly bithumbWebSocketService: BithumbWebSocketService,
-    private readonly binanceHttpService: BinanceHttpService,
+    // private readonly binanceHttpService: BinanceHttpService,
     // private readonly binanceService: BinanceService,
     // private readonly bithumbService: BithumbService,
     // ... 다른 거래소 서비스들
@@ -70,7 +70,17 @@ export class CollectorService {
         .filter(market => !newMarketSet.has(market.currency_pair))
         .map(market => market.currency_pair);
 
-      console.log('delistedMarkets', delistedMarkets);
+      // 신규 상장된 마켓 찾기
+      const newlyListedMarkets = newMarketData
+        .filter(market => !currentMarketSet.has(market.market))
+        .map(market => market.market);
+
+      if (delistedMarkets.length > 0) {
+        this.logger.log(`Delisted markets in Upbit: ${delistedMarkets.join(', ')}`);
+      }
+      if (newlyListedMarkets.length > 0) {
+        this.logger.log(`Newly listed markets in Upbit: ${newlyListedMarkets.join(', ')}`);
+      }
 
       // DB 업데이트 (신규 상장 및 업데이트)
       await this.db.transaction(async tx => {

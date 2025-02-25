@@ -16,11 +16,11 @@ export interface BithumbMarketResponse {
 // *************************
 // *    GLOBAL EXCHANGE    *
 // *************************
+
 export interface BinanceMarketResponse {
-  symbol: string;
-  quoteAsset: string;
-  status: string;
-  isSpotTradingAllowed: boolean;
+  timezone: string;
+  serverTime: number;
+  symbols: any[]; //TODO: 타입 수정해야됨
 }
 
 export type ExchangeMarketResponse =

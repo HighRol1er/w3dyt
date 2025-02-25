@@ -8,10 +8,10 @@ import { Module } from '@nestjs/common';
 // import { BybitWebsocketService } from './bybit/bybit-ws.service';
 import { RedisService } from 'src/redis/redis.service';
 import { UpbitModule } from './upbit/upbit.module';
-import { BinanceModule } from './binance/binance.module';
+// import { BinanceModule } from './binance/binance.module';
 import { BithumbModule } from './bithumb/bithumb.module';
 @Module({
-  imports: [UpbitModule, BithumbModule, BinanceModule],
+  imports: [UpbitModule, BithumbModule],
   providers: [
     RedisService,
 
@@ -27,7 +27,6 @@ import { BithumbModule } from './bithumb/bithumb.module';
   exports: [
     RedisService,
     UpbitModule,
-    BinanceModule,
     BithumbModule,
     // UpbitService,
     // // UpbitWebsocketService,

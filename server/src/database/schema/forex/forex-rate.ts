@@ -2,7 +2,7 @@ import { pgTable, timestamp, varchar, decimal, serial } from 'drizzle-orm/pg-cor
 import { createSelectSchema, createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
-export const forexRates = pgTable('forex_rates', {
+export const forexRatesSchema = pgTable('forex_rates', {
   id: serial('id').primaryKey(),
   currency_pair: varchar('currency_pair', { length: 10 }).notNull(),
   timestamp: timestamp('timestamp').notNull(),
@@ -10,8 +10,8 @@ export const forexRates = pgTable('forex_rates', {
 });
 
 // Zod 스키마
-const forexRatesSelectSchema = createSelectSchema(forexRates);
-const forexRatesInsertSchema = createInsertSchema(forexRates, {
+const forexRatesSelectSchema = createSelectSchema(forexRatesSchema);
+const forexRatesInsertSchema = createInsertSchema(forexRatesSchema, {
   currency_pair: z.string().min(1),
   rate: z.number().positive(),
 });
