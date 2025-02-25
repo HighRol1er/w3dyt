@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { API_ENDPOINTS } from 'src/common/constants';
-import { UpbitMarketResponse } from 'src/types/exchange-http';
+import { BithumbMarketResponse } from 'src/types/exchange-http';
 import { BaseHttpService } from '../base/base-http.service';
 import { krExchangeMarketParser } from 'src/utils/market-parser.util';
 import { krExchangeAssetSplitter } from 'src/utils/asset-splitter.util';
 @Injectable()
-export class UpbitHttpService extends BaseHttpService {
-  protected readonly apiEndpoint = API_ENDPOINTS.UPBIT;
+export class BithumbHttpService extends BaseHttpService {
+  protected readonly apiEndpoint = API_ENDPOINTS.BITHUMB;
 
   constructor() {
-    super('Upbit');
+    super('Bithumb');
   }
-  async fetchAllMarketData(): Promise<UpbitMarketResponse[]> {
+  async fetchAllMarketData(): Promise<BithumbMarketResponse[]> {
     try {
       const { data } = await axios.get(this.apiEndpoint);
 

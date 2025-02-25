@@ -6,6 +6,8 @@ import { upbitSymbolSchema } from 'src/database/schema/exchange/upbit';
 // import { UpbitDataResponseType } from 'src/types/exchange-http';
 import { UpbitHttpService } from './exchange/upbit/upbit-http.service';
 import { BinanceHttpService } from './exchange/binance/binance-http.service';
+import { BithumbHttpService } from './exchange/bithumb/bithumb-http.service';
+import { bithumbSymbolSchema } from 'src/database/schema/exchange/bithumb';
 // import { BinanceDataResponseType } from 'src/types/exchange-http';
 @Injectable()
 export class CollectorService {
@@ -15,6 +17,7 @@ export class CollectorService {
     @Inject('DATABASE') private readonly db: typeof DrizzleClient,
     private readonly upbitHttpService: UpbitHttpService,
     private readonly binanceHttpService: BinanceHttpService,
+    private readonly bithumbHttpService: BithumbHttpService,
     // private readonly binanceService: BinanceService,
     // private readonly bithumbService: BithumbService,
     // ... 다른 거래소 서비스들
@@ -22,10 +25,12 @@ export class CollectorService {
 
   // @Cron(CronExpression.EVERY_5_SECONDS) // test
   @Cron(CronExpression.EVERY_HOUR)
+  // private 이나 protected 붙여주고싶네.
   async collectMarketData() {
     try {
       await Promise.all([
-        this.collectUpbitTickers(),
+        this.collectUpbitMarket(),
+        this.collectBithumbMarket(),
         // this.collectBinanceTickers(),
         // this.collectBithumbMarkets(),
         // ... 다른 거래소
@@ -37,7 +42,7 @@ export class CollectorService {
     }
   }
 
-  private async collectUpbitTickers() {
+  private async collectUpbitMarket() {
     try {
       this.logger.log('Collecting Upbit tickers...');
       const data = await this.upbitHttpService.fetchAllMarketData();
@@ -76,6 +81,42 @@ export class CollectorService {
     }
   }
 
+  private async collectBithumbMarket() {
+    try {
+      this.logger.log('Collecting Bithumb tickers...');
+      const data = await this.bithumbHttpService.fetchAllMarketData();
+
+      await this.db.transaction(async tx => {
+        for (const market of data) {
+          if (!market.market.startsWith('KRW-')) continue;
+
+          const payload = {
+            currency_pair: market.market,
+            korean_name: market.korean_name,
+            english_name: market.english_name,
+            base_asset: market.market.split('-')[1],
+            quote_asset: market.market.split('-')[0],
+            created_at: new Date(),
+            updated_at: new Date(),
+          };
+
+          console.log('payload', payload);
+
+          await tx
+            .insert(bithumbSymbolSchema)
+            .values(payload)
+            .onConflictDoUpdate({
+              target: bithumbSymbolSchema.currency_pair,
+              set: { updated_at: new Date() },
+            });
+        }
+      });
+      this.logger.log('Successfully collected Bithumb tickers');
+    } catch (error) {
+      this.logger.error('Failed to collect Bithumb tickers', error);
+      throw error;
+    }
+  }
   // @Cron(CronExpression.EVERY_5_SECONDS)
   // private async collectBinanceTickers() {
   //   try {

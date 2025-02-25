@@ -17,16 +17,33 @@ export class RedisService implements OnModuleInit {
     });
   }
   // 모듈 초기화 시 Redis 연결
+  // async onModuleInit() {
+  //   try {
+  //     await this.client.connect();
+  //   } catch (error) {
+  //     console.error('Redis connection failed:', error);
+  //     // 개발 환경에서는 Redis 연결 실패를 조용히 처리
+  //     if (this.configService.get('NODE_ENV') === 'development') {
+  //       console.log('Redis is in development mode - continuing without Redis');
+  //       return;
+  //     }
+  //     // 프로덕션 환경에서는 에러를 발생시킴
+  //     throw error;
+  //   }
+  // }
   async onModuleInit() {
     try {
       await this.client.connect();
     } catch (error) {
-      console.error('Redis connection failed:', error);
-      // 개발 환경에서는 Redis 연결 실패를 허용
-      if (this.configService.get('NODE_ENV') !== 'development') {
-        console.log('Redis is in development mode');
-        throw error;
+      // 개발 환경에서는 에러 로깅을 생략
+      if (this.configService.get('NODE_ENV') === 'development') {
+        console.log('Redis is in development mode - continuing without Redis');
+        return;
       }
+
+      // 프로덕션 환경에서는 에러를 출력하고 throw
+      console.error('Redis connection failed:', error);
+      throw error;
     }
   }
 

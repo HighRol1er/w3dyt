@@ -1,49 +1,67 @@
 import { Injectable } from '@nestjs/common';
-import { WEBSOCKET_ENDPOINTS, API_ENDPOINTS, EXCHANGE_NAME } from 'src/common/constants';
-import { bithumbMarketData } from 'scripts/market/bithumb-market-data';
-import { BaseWebsocketService } from '../base/z-legacy-base-ws.service';
-import { formatChangeRate } from 'src/utils/number.util';
+import { BaseWebSocketService } from '../base/base-ws.service';
+import { EXCHANGE_NAME, WEBSOCKET_ENDPOINTS } from 'src/common/constants';
+import { BithumbHttpService } from './bithumb-http.service';
+import { RedisService } from 'src/redis/redis.service';
 import {
+  BithumbRawDataType,
   BithumbSubscribeMessageType,
   ParseMessageTickerDataType,
-  BithumbRawDataType,
 } from 'src/types/exchange-ws';
-import { RedisService } from 'src/redis/redis.service';
+import { krExchangeAssetSplitter } from 'src/utils/asset-splitter.util';
+import { formatChangeRate } from 'src/utils/number.util';
 @Injectable()
-export class BithumbWebsocketService extends BaseWebsocketService {
+export class BithumbWebSocketService extends BaseWebSocketService {
   protected readonly wsEndpoint = WEBSOCKET_ENDPOINTS.BITHUMB;
-  protected readonly apiEndpoint = API_ENDPOINTS.BITHUMB;
 
-  constructor(redisService: RedisService) {
-    super('Bithumb', redisService);
+  constructor(
+    private readonly bithumbHttpService: BithumbHttpService,
+    private readonly redisService: RedisService,
+  ) {
+    super('Bithumb');
   }
 
-  protected getSubscribeMessage(): BithumbSubscribeMessageType {
-    return [
+  protected async subscribe(): Promise<void> {
+    const symbols = this.bithumbHttpService.getSymbolList();
+    const subscribeMessage: BithumbSubscribeMessageType = [
       { ticket: 'test' },
       {
         type: 'ticker',
-        codes: bithumbMarketData.map(market => market.symbol),
+        codes: symbols,
       },
       { format: 'SIMPLE' },
     ];
+
+    this.ws.send(JSON.stringify(subscribeMessage));
   }
 
-  protected parseMessageData(data: Buffer): ParseMessageTickerDataType {
-    const rawData: BithumbRawDataType = JSON.parse(data.toString());
+  protected async parseMessageData(data: Buffer): Promise<ParseMessageTickerDataType | null> {
+    try {
+      const rawData: BithumbRawDataType = JSON.parse(data.toString());
+      const { baseAsset, quoteAsset } = krExchangeAssetSplitter(rawData.cd);
+      const redisKey = `${EXCHANGE_NAME.BITHUMB}-${baseAsset}-${quoteAsset}`;
 
-    const tickerData: ParseMessageTickerDataType = {
-      exchange: EXCHANGE_NAME.BITHUMB,
-      symbol: rawData.cd,
-      currentPrice: rawData.tp, // number
-      changeRate: formatChangeRate(rawData.scr),
-      tradeVolume: rawData.atv24h, // number
-    };
+      const tickerData = {
+        exchange: EXCHANGE_NAME.BITHUMB,
+        symbol: rawData.cd,
+        currentPrice: rawData.tp,
+        changeRate: formatChangeRate(rawData.scr),
+        tradeVolume: rawData.atp24h,
+      };
 
-    // NOTE: 데이터 확인용 console.log
-    // console.log('rawData: ', rawData);
-    // console.log('formattedData: ', formattedData);
+      // NOTE: 데이터 확인용 console.log
+      // console.log('rawData: ', rawData);
+      // console.log('tickerData: ', tickerData);
+      await this.redisService.set(redisKey, JSON.stringify(tickerData));
 
-    return tickerData;
+      return tickerData;
+    } catch (error) {
+      this.logger.error(`Error parsing message data: ${error.message}`, {
+        data,
+        error,
+      });
+
+      return null;
+    }
   }
 }

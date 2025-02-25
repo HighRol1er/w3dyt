@@ -9,8 +9,9 @@ import { Module } from '@nestjs/common';
 import { RedisService } from 'src/redis/redis.service';
 import { UpbitModule } from './upbit/upbit.module';
 import { BinanceModule } from './binance/binance.module';
+import { BithumbModule } from './bithumb/bithumb.module';
 @Module({
-  imports: [UpbitModule, BinanceModule],
+  imports: [UpbitModule, BithumbModule, BinanceModule],
   providers: [
     RedisService,
 
@@ -27,6 +28,7 @@ import { BinanceModule } from './binance/binance.module';
     RedisService,
     UpbitModule,
     BinanceModule,
+    BithumbModule,
     // UpbitService,
     // // UpbitWebsocketService,
     // BinanceWebsocketService,

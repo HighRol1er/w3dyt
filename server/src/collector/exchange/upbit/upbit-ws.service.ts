@@ -7,7 +7,7 @@ import {
   UpbitSubscribeMessageType,
 } from 'src/types/exchange-ws';
 import { formatChangeRate } from 'src/utils/number.util';
-import { upbitAssetSplitter } from 'src/utils/asset-splitter.util';
+import { krExchangeAssetSplitter } from 'src/utils/asset-splitter.util';
 import { BaseWebSocketService } from '../base/base-ws.service';
 import { UpbitHttpService } from './upbit-http.service';
 
@@ -41,10 +41,10 @@ export class UpbitWebSocketService extends BaseWebSocketService {
   protected async parseMessageData(data: Buffer): Promise<ParseMessageTickerDataType | null> {
     try {
       const rawData: UpbitRawDataType = JSON.parse(data.toString());
-      const { baseAsset, quoteAsset } = upbitAssetSplitter(rawData.cd);
+      const { baseAsset, quoteAsset } = krExchangeAssetSplitter(rawData.cd);
       const redisKey = `${EXCHANGE_NAME.UPBIT}-${baseAsset}-${quoteAsset}`;
 
-      const tickerData: ParseMessageTickerDataType = {
+      const tickerData = {
         exchange: EXCHANGE_NAME.UPBIT,
         symbol: rawData.cd,
         currentPrice: rawData.tp,

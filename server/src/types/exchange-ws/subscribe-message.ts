@@ -1,6 +1,6 @@
-/**************************
- *     KOREA EXCHANGE     *
- **************************/
+// *************************
+// *     KOREA EXCHANGE    *
+// *************************
 export type UpbitSubscribeMessageType = [
   {
     ticket: string; // 식별값: UUID 권장
@@ -25,9 +25,9 @@ export type BithumbSubscribeMessageType = [
   { format: 'DEFAULT' | 'SIMPLE' },
 ];
 
-/**************************
- *     GLOBAL EXCHANGE    *
- **************************/
+// *************************
+// *    GLOBAL EXCHANGE    *
+// *************************
 export interface BinanceSubscribeMessageType {
   method: 'SUBSCRIBE';
   params: string[]; // ['btc@ticker', 'eth@ticker']

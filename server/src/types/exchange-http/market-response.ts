@@ -1,23 +1,21 @@
-/**
- * Upbit raw-data type
- */
+// *************************
+// *     KOREA EXCHANGE    *
+// *************************
 export interface UpbitMarketResponse {
   market: string;
   korean_name: string;
   english_name: string;
 }
 
-/**
- * Bithumb raw-data type
- */
 export interface BithumbMarketResponse {
-  symbol: string;
-  price: string;
+  market: string;
+  korean_name: string;
+  english_name: string;
 }
 
-/**
- * Binance raw-data type
- */
+// *************************
+// *    GLOBAL EXCHANGE    *
+// *************************
 export interface BinanceMarketResponse {
   symbol: string;
   quoteAsset: string;
